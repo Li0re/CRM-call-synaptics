@@ -87,13 +87,13 @@
 
   /* ── APP SHELL ── */
   #appPage { display: none; min-height: 100vh; flex-direction: column; }
-  .app-body { display: flex; flex: 1; position: relative; }
+  .app-body { display: flex; flex: 1; position: relative; margin-top: 52px; }
 
   /* ── TOPNAV ── */
   .topnav {
     background: var(--surface); border-bottom: 0.5px solid var(--border);
     padding: 0 24px; height: 52px; display: flex; align-items: center;
-    justify-content: space-between; position: sticky; top: 0; z-index: 400;
+    justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 400;
   }
   .nav-left { display: flex; align-items: center; gap: 12px; }
   .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
@@ -714,23 +714,21 @@ function doLogout() {
 var prospects = [];
 var dbReady = false;
 
-// ─── SAVE TO FIRESTORE ───
+// ─── SAVE TO FIRESTORE + LOCALSTORAGE ───
 var saveTimeout = null;
 function saveData() {
-  // Debounce saves to avoid too many writes
+  // Save to localStorage immediately
+  try {
+    localStorage.setItem('synaptic_prospects', JSON.stringify(prospects));
+    localStorage.setItem('synaptic_team', JSON.stringify(teamMembers));
+  } catch(e) {}
+  // Debounce Firestore writes
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(function() {
-    // Save prospects
     db.collection('config').doc('prospects').set({ data: prospects })
-      .catch(function(e) { console.warn('Firebase save prospects error:', e); });
-    // Save team
+      .catch(function(e) { console.warn('Firebase save error:', e); });
     db.collection('config').doc('team').set({ data: teamMembers })
-      .catch(function(e) { console.warn('Firebase save team error:', e); });
-    // Also save to localStorage as fallback
-    try {
-      localStorage.setItem('synaptic_prospects', JSON.stringify(prospects));
-      localStorage.setItem('synaptic_team', JSON.stringify(teamMembers));
-    } catch(e) {}
+      .catch(function(e) { console.warn('Firebase save error:', e); });
   }, 500);
 }
 
