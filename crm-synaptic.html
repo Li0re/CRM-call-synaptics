@@ -386,11 +386,6 @@
     <div class="pipeline-card">
       <div class="card-header">
         <div class="card-title" style="color:var(--text)">Pipeline</div>
-        <div class="seg">
-          <button class="act" onclick="setPeriod(this,'mois')">Ce mois</button>
-          <button onclick="setPeriod(this,'trim')">Trimestre</button>
-          <button onclick="setPeriod(this,'an')">Année</button>
-        </div>
       </div>
       <div class="stage-labels" id="stageLabels"></div>
       <div class="pipeline-wrap">
@@ -405,11 +400,9 @@
         <div class="bcard-title">Taux de conversion</div>
         <div id="convList"></div>
       </div>
-      <div class="bcard">
+      <div class="bcard" id="teamStatsCard">
         <div class="bcard-title">Équipe</div>
-        <div class="resp-item"><div class="av" style="background:#B5D4F4;color:#0C447C">G</div><div class="resp-name">Grégory</div><div class="resp-stats"><div class="rs"><b>18</b> actifs</div><div class="rs c-up"><b>31%</b> conv.</div></div></div>
-        <div class="resp-item"><div class="av" style="background:#C0DD97;color:#27500A">É</div><div class="resp-name">Édouard</div><div class="resp-stats"><div class="rs"><b>14</b> actifs</div><div class="rs c-up"><b>26%</b> conv.</div></div></div>
-        <div class="resp-item"><div class="av" style="background:#CECBF6;color:#3C3489">M</div><div class="resp-name">Maxence</div><div class="resp-stats"><div class="rs"><b>11</b> actifs</div><div class="rs c-nu"><b>18%</b> conv.</div></div></div>
+        <div id="teamStatsBody"></div>
       </div>
     </div>
 
@@ -458,10 +451,14 @@
       </div>
       <div class="tbl-footer">
         <span class="tbl-count" id="tblCount"></span>
-        <div class="pagi">
-          <button class="pg cur">1</button>
-          <button class="pg">2</button>
-          <button class="pg">›</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--text3)">Afficher :</span>
+          <select class="tbl-filter" id="rowLimit" onchange="renderTable()" style="min-width:70px">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="0">Tout</option>
+          </select>
         </div>
       </div>
     </div>
@@ -773,12 +770,9 @@ function loadProspects() {
   });
 }
 
-// ─── PIPELINE DATA ───
-const datasets = {
-  mois: [124, 78, 42, 22, 14],
-  trim: [310, 185, 95, 48, 31],
-  an:   [980, 580, 290, 130, 72],
-};
+// ─── PIPELINE DATA (from real prospects) ───
+const stageMap = { 'new':'Nouveaux', 'contact':'Contactés', 'prop':'Proposition', 'nego':'Négociation', 'gagne':'Gagnés' };
+const stageKeys = ['new','contact','prop','nego','gagne'];
 const stageNames = ['Nouveaux','Contactés','Proposition','Négociation','Gagnés'];
 const pColors = [
   { fill:'#3B82F6', stroke:'#1E40AF', bar:'#3B82F6' },
@@ -786,21 +780,17 @@ const pColors = [
   { fill:'#1D4ED8', stroke:'#172554', bar:'#1D4ED8' },
   { fill:'#1E40AF', stroke:'#172554', bar:'#1E40AF' },
 ];
-let currentData = datasets.mois;
+var currentData = [];
 let selStage = null;
 
-function setPeriod(btn, key) {
-  document.querySelectorAll('.seg button').forEach(b => b.classList.remove('act'));
-  btn.classList.add('act');
-  currentData = datasets[key];
-  selStage = null;
-  renderPipeline();
-  renderKPI();
-  renderConv();
+function computePipelineData() {
+  currentData = stageKeys.map(k => prospects.filter(p => p.statut === k).length);
+  // Ensure at least 1 for display if all zeros
+  if (currentData.every(v => v === 0)) currentData = [1, 0, 0, 0, 0];
 }
 
 // ─── RENDER ALL ───
-function renderAll() { renderKPI(); renderPipeline(); renderConv(); renderTable(); saveData(); }
+function renderAll() { computePipelineData(); renderKPI(); renderPipeline(); renderConv(); renderTable(); renderTeamStats(); saveData(); }
 
 // ─── KPI ───
 function renderKPI() {
@@ -876,6 +866,20 @@ function moveTT(e) {
 }
 function hideTT(){ document.getElementById('ptt').style.opacity='0'; }
 
+// ─── TEAM STATS ───
+function renderTeamStats() {
+  const el = document.getElementById('teamStatsBody');
+  if (!el) return;
+  el.innerHTML = teamMembers.map(m => {
+    const mine = prospects.filter(p => p.resp === m.name);
+    const actifs = mine.filter(p => p.statut !== 'perdu' && p.statut !== 'gagne').length;
+    const gagnes = mine.filter(p => p.statut === 'gagne').length;
+    const conv = mine.length > 0 ? Math.round((gagnes / mine.length) * 100) : 0;
+    const cls = conv >= 25 ? 'c-up' : conv >= 10 ? 'c-nu' : 'c-dn';
+    return `<div class="resp-item"><div class="av" style="background:${m.bg};color:${m.fg}">${m.name[0]}</div><div class="resp-name">${m.name}</div><div class="resp-stats"><div class="rs"><b>${actifs}</b> actifs</div><div class="rs ${cls}"><b>${conv}%</b> conv.</div></div></div>`;
+  }).join('');
+}
+
 // ─── CONVERSION ───
 const convLabels=['Nouveau → Contacté','Contacté → Proposition','Proposition → Négociation','Négociation → Gagné'];
 const convColors=['#378ADD','#7F77DD','#EF9F27','#1D9E75'];
@@ -919,8 +923,10 @@ function renderTable() {
     if (q && !p.nom.toLowerCase().includes(q) && !p.entreprise.toLowerCase().includes(q)) return false;
     return true;
   });
+  const limit = parseInt(document.getElementById('rowLimit').value) || 0;
+  const display = limit > 0 ? rows.slice(0, limit) : rows;
   const body = document.getElementById('tableBody');
-  body.innerHTML = rows.map(p => {
+  body.innerHTML = display.map(p => {
     const [bg, fg] = p.av.split(':');
     const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
     const dateStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}) : '—';
@@ -940,7 +946,8 @@ function renderTable() {
       </div></td>
     </tr>`;
   }).join('');
-  document.getElementById('tblCount').textContent = `${rows.length} prospect${rows.length>1?'s':''} affiché${rows.length>1?'s':''}`;
+  const suffix = display.length !== rows.length ? ` sur ${rows.length}` : '';
+  document.getElementById('tblCount').textContent = `${display.length} prospect${display.length>1?'s':''} affiché${display.length>1?'s':''}${suffix}`;
 }
 
 // ─── MODAL ───
