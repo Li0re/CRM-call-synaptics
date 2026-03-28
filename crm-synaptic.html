@@ -201,7 +201,47 @@
     background: var(--surface); border-radius: var(--radius-lg);
     padding: 28px 28px 24px; width: 100%; max-width: 480px;
     border: 0.5px solid var(--border2);
+    animation: modalIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  /* ── CONFIRM DELETE POPUP ── */
+  .confirm-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 600;
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .confirm-bg.open { display: flex; }
+  .confirm-box {
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 28px; width: 100%; max-width: 380px;
+    border: 0.5px solid var(--border2); text-align: center;
+    animation: modalIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .confirm-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--red-l); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .confirm-icon svg { width: 24px; height: 24px; stroke: var(--red); fill: none; stroke-width: 2; }
+  .confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .confirm-msg { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+  .confirm-actions { display: flex; gap: 8px; justify-content: center; }
+  .btn-confirm-cancel { padding: 8px 20px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; color: var(--text2); font-size: 13px; cursor: pointer; transition: background 0.15s; }
+  .btn-confirm-cancel:hover { background: var(--surface2); }
+  .btn-confirm-del { padding: 8px 20px; border-radius: var(--radius); background: var(--red); color: white; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: opacity 0.15s; }
+  .btn-confirm-del:hover { opacity: 0.85; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .kpi { animation: fadeInUp 0.35s ease both; }
+  .kpi:nth-child(1) { animation-delay: 0.03s; }
+  .kpi:nth-child(2) { animation-delay: 0.06s; }
+  .kpi:nth-child(3) { animation-delay: 0.09s; }
+  .kpi:nth-child(4) { animation-delay: 0.12s; }
+  .kpi:nth-child(5) { animation-delay: 0.15s; }
+  .pipeline-card { animation: fadeInUp 0.4s ease 0.1s both; }
+  .bcard { animation: fadeInUp 0.4s ease 0.15s both; }
+  .table-card { animation: fadeInUp 0.4s ease 0.2s both; }
+  tbody tr { animation: fadeIn 0.3s ease both; }
+  .badge-select { transition: background 0.2s, color 0.2s; }
   .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
   .mfield { margin-bottom: 14px; }
   .mfield label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; font-weight: 500; }
@@ -649,6 +689,21 @@
   </div>
 </div>
 
+<!-- ── CONFIRM DELETE POPUP ── -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm-box">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14M10 11v6M14 11v6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="confirm-title">Supprimer ce prospect ?</div>
+    <div class="confirm-msg" id="confirmMsg">Cette action est irréversible.</div>
+    <div class="confirm-actions">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Annuler</button>
+      <button class="btn-confirm-del" id="confirmDelBtn">Supprimer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════ -->
@@ -817,7 +872,7 @@ const ns = 'http://www.w3.org/2000/svg';
 function renderPipeline() {
   const svg = document.getElementById('pipeline');
   svg.innerHTML = '';
-  const W=800, H=220, mid=H/2, max=currentData[0];
+  const W=800, H=220, mid=H/2, max=currentData[0]||1;
   const sc = v => (v/max)*(H*0.78);
 
   for (let i=0; i<currentData.length-1; i++) {
@@ -842,7 +897,7 @@ function renderPipeline() {
   // Centered percentage inside each wave segment
   for (let i=0; i<currentData.length-1; i++) {
     const cx = i*200 + 100;
-    const pct = Math.round(currentData[i+1]/currentData[i]*100);
+    const pct = currentData[i] > 0 ? Math.round(currentData[i+1]/currentData[i]*100) : 0;
     const t=document.createElementNS(ns,'text');
     t.setAttribute('x', cx);
     t.setAttribute('y', mid+5);
@@ -859,7 +914,7 @@ function renderPipeline() {
 
 function showTT(e,i) {
   const sv=currentData[i], ev=currentData[i+1];
-  const pct=Math.round(ev/sv*100), lost=sv-ev;
+  const pct=sv>0?Math.round(ev/sv*100):0, lost=sv-ev;
   const tt=document.getElementById('ptt');
   tt.innerHTML=`<div class="tt-title">${stageNames[i]} → ${stageNames[i+1]}</div>
     <div class="tt-row"><span>Entrée</span><span>${sv}</span></div>
@@ -896,14 +951,14 @@ const convColors=['#378ADD','#7F77DD','#EF9F27','#1D9E75'];
 function renderConv() {
   let html='';
   for(let i=0;i<currentData.length-1;i++){
-    const pct=Math.round(currentData[i+1]/currentData[i]*100);
+    const pct=currentData[i]>0?Math.round(currentData[i+1]/currentData[i]*100):0;
     html+=`<div class="conv-item">
       <div class="conv-lbl">${convLabels[i]}</div>
       <div class="conv-track"><div class="conv-fill" style="width:${pct}%;background:${convColors[i]}"></div></div>
       <div class="conv-pct">${pct}%</div>
     </div>`;
   }
-  const g=Math.round(currentData[currentData.length-1]/currentData[0]*100);
+  const g=currentData[0]>0?Math.round(currentData[currentData.length-1]/currentData[0]*100):0;
   html+=`<div class="conv-item global-row">
     <div class="conv-lbl" style="font-weight:600;color:var(--text)">Conversion globale</div>
     <div class="conv-track"><div class="conv-fill" style="width:${g}%;background:#639922"></div></div>
@@ -1025,12 +1080,22 @@ function editProspect(id) {
   if (p) openModal(p);
 }
 
+var pendingDeleteId = null;
 function deleteProspect(id) {
-  if (!confirm('Supprimer ce prospect ?')) return;
-  prospects = prospects.filter(p=>p.id!==id);
-  renderTable();
-  saveData();
+  pendingDeleteId = id;
+  const p = prospects.find(x => x.id === id);
+  document.getElementById('confirmMsg').textContent = p ? `« ${p.nom} » sera définitivement supprimé.` : 'Cette action est irréversible.';
+  document.getElementById('confirmBg').classList.add('open');
 }
+function closeConfirm() { document.getElementById('confirmBg').classList.remove('open'); pendingDeleteId = null; }
+document.getElementById('confirmBg').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+document.getElementById('confirmDelBtn').addEventListener('click', () => {
+  if (pendingDeleteId) {
+    prospects = prospects.filter(p => p.id !== pendingDeleteId);
+    renderAll();
+  }
+  closeConfirm();
+});
 
 // ─── SIDEBAR ───
 function toggleSidebar() {
