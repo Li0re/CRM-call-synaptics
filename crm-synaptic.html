@@ -134,9 +134,13 @@
   .seg button { padding: 5px 12px; font-size: 12px; background: transparent; border: none; color: var(--text2); cursor: pointer; }
   .seg button.act { background: var(--surface2); color: var(--text); font-weight: 500; }
   svg#pipeline { width: 100%; display: block; overflow: visible; }
+  svg#pipeline path { transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease; transform-origin: center; }
+  svg#pipeline path:hover { filter: brightness(1.15) drop-shadow(0 4px 12px rgba(0,0,0,0.2)); transform: scaleY(1.04); }
+  svg#pipeline text { transition: opacity 0.4s ease 0.2s; }
   .stage-labels { display: flex; margin-bottom: 14px; }
-  .sl { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 15px; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .sl strong { color: var(--blue); font-size: 24px; font-weight: 800; }
+  .sl { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 15px; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: transform 0.2s ease; }
+  .sl:hover { transform: translateY(-2px); }
+  .sl strong { color: var(--blue); font-size: 24px; font-weight: 800; transition: color 0.3s ease; }
 
   /* ── BOTTOM GRID ── */
   .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
@@ -229,6 +233,7 @@
   .btn-confirm-del:hover { opacity: 0.85; }
 
   /* ── ANIMATIONS ── */
+  @keyframes pipeIn { from { opacity: 0; transform: scaleX(0.7) scaleY(0.8); } to { transform: scaleX(1) scaleY(1); } }
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .kpi { animation: fadeInUp 0.35s ease both; }
@@ -849,8 +854,16 @@ var currentData = [];
 let selStage = null;
 
 function computePipelineData() {
-  currentData = stageKeys.map(k => prospects.filter(p => p.statut === k).length);
-  // Ensure at least 1 for display if all zeros
+  // Cumulative: a prospect at stage N counts in stages 0..N
+  // Order: appeler(0) → appele(1) → repondu(2) → rdv_effectue(3) → signe(4)
+  // rdv_planifie counts same as rdv_effectue (sub-stage), perdu excluded
+  const stageIndex = { appeler:0, appele:1, repondu:2, rdv_planifie:3, rdv_effectue:3, signe:4 };
+  currentData = new Array(pipeKeys.length).fill(0);
+  prospects.forEach(p => {
+    const idx = stageIndex[p.statut];
+    if (idx === undefined) return; // perdu → not in funnel
+    for (let i = 0; i <= idx; i++) currentData[i]++;
+  });
   if (currentData.every(v => v === 0)) currentData = [1, 0, 0, 0, 0];
 }
 
@@ -886,10 +899,13 @@ function renderPipeline() {
     const p = document.createElementNS(ns,'path');
     p.setAttribute('d',d); p.setAttribute('fill',pColors[i].fill);
     p.setAttribute('stroke',pColors[i].stroke); p.setAttribute('stroke-width','1.2');
-    p.setAttribute('opacity',op); p.setAttribute('cursor','pointer');
-    p.addEventListener('mouseenter', e=>showTT(e,i));
+    p.setAttribute('cursor','pointer');
+    p.style.opacity = op;
+    p.style.animation = `pipeIn 0.5s ease ${i * 0.12}s both`;
+    p.dataset.baseOpacity = op;
+    p.addEventListener('mouseenter', e=>{ p.style.opacity='1'; showTT(e,i); });
+    p.addEventListener('mouseleave', e=>{ p.style.opacity=p.dataset.baseOpacity; hideTT(); });
     p.addEventListener('mousemove',  e=>moveTT(e));
-    p.addEventListener('mouseleave', hideTT);
     p.addEventListener('click', ()=>selectStage(i));
     svg.appendChild(p);
   }
