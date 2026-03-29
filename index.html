@@ -1026,6 +1026,108 @@
       outline: none;
     }
 
+    /* Custom Multi-Select for Status */
+    .status-dropdown {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .status-trigger {
+      padding: 6px 12px;
+      min-width: 140px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .status-trigger:hover {
+      border-color: var(--blue);
+    }
+
+    .status-trigger::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid var(--text2);
+    }
+
+    .status-options {
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      width: 200px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      padding: 8px 0;
+      display: none;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .status-options.show {
+      display: block;
+      animation: selectFade 0.2s ease-out;
+    }
+
+    @keyframes selectFade {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .status-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .status-option:hover {
+      background: var(--surface2);
+    }
+
+    .status-option input {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .status-option span {
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .status-divider {
+      height: 1px;
+      background: var(--border2);
+      margin: 4px 0;
+    }
+
+    .status-count {
+      background: var(--blue);
+      color: white;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
     .btn-add {
       padding: 7px 14px;
       border-radius: var(--radius);
@@ -2128,23 +2230,65 @@
                 <div class="table-controls">
                   <input class="tbl-search" type="text" placeholder="Rechercher..." id="searchQ"
                     oninput="renderTable()" />
-                  <select class="tbl-filter" id="filterDate" onchange="renderTable()">
+                   <select class="tbl-filter" id="filterDate" onchange="renderTable()">
                     <option value="">Toutes les dates</option>
                     <option value="today">Aujourd'hui</option>
                     <option value="week">Cette semaine</option>
                     <option value="month">Ce mois</option>
                     <option value="dormant">Inactifs >7j</option>
                   </select>
-                  <select class="tbl-filter" id="filterStatus" onchange="renderTable()">
-                    <option value="">Tous les statuts</option>
-                    <option value="appeler">À appeler</option>
-                    <option value="appele">Appelé</option>
-                    <option value="repondu">Répondu</option>
-                    <option value="rdv_planifie">RDV planifié</option>
-                    <option value="rdv_effectue">RDV effectué</option>
-                    <option value="signe">Signé</option>
-                    <option value="perdu">Perdu</option>
-                  </select>
+
+                  <!-- Custom Multi-Select for Status -->
+                  <div class="status-dropdown" id="statusDropdownContainer">
+                    <div class="status-trigger" onclick="toggleStatusDropdown(event)">
+                      <span id="statusTriggerLabel">Tous les statuts</span>
+                    </div>
+                    <div class="status-options" id="statusOptions">
+                      <div class="status-option" onclick="toggleAllStatuses(event)">
+                        <input type="checkbox" id="checkAllStatus" checked onclick="event.stopPropagation()">
+                        <span style="font-weight:600">Tous les statuts</span>
+                      </div>
+                      <div class="status-divider"></div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'appeler')">
+                        <input type="checkbox" class="status-cb" value="appeler" checked onclick="event.stopPropagation()">
+                        <span>À appeler</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'appele')">
+                        <input type="checkbox" class="status-cb" value="appele" checked onclick="event.stopPropagation()">
+                        <span>Appelé</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'repondu')">
+                        <input type="checkbox" class="status-cb" value="repondu" checked onclick="event.stopPropagation()">
+                        <span>Répondu</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'rdv_planifie')">
+                        <input type="checkbox" class="status-cb" value="rdv_planifie" checked onclick="event.stopPropagation()">
+                        <span>RDV planifié</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'rdv_effectue')">
+                        <input type="checkbox" class="status-cb" value="rdv_effectue" checked onclick="event.stopPropagation()">
+                        <span>RDV effectué</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'signe')">
+                        <input type="checkbox" class="status-cb" value="signe" checked onclick="event.stopPropagation()">
+                        <span>Signé</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'perdu')">
+                        <input type="checkbox" class="status-cb" value="perdu" checked onclick="event.stopPropagation()">
+                        <span>Perdu</span>
+                      </div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'npai')">
+                        <input type="checkbox" class="status-cb" value="npai" checked onclick="event.stopPropagation()">
+                        <span>Faux N°/NPAI</span>
+                      </div>
+                      <div class="status-divider"></div>
+                      <div class="status-option" onclick="toggleOneStatus(event, 'exemple')">
+                        <input type="checkbox" class="status-cb" value="exemple" onclick="event.stopPropagation()">
+                        <span style="color:var(--text2)">Exemples (test)</span>
+                      </div>
+                    </div>
+                  </div>
+
                   <select class="tbl-filter" id="filterResp" onchange="renderTable()">
                     <option value="">Tous les commerciaux</option>
                     <option value="Grégory">Grégory</option>
@@ -2627,14 +2771,14 @@
     let selStage = null;
 
     const EXAMPLE_PROSPECTS = [
-      { id: 'ex1', nom: 'Jean Dupont', entreprise: 'Tech Corp', tel: '06 12 34 56 78', statut: 'appeler', valeur: 1500, score: 3, resp: 'Lilian', dateRelance: '2026-04-10', created: '2026-03-01', isExample: true },
-      { id: 'ex2', nom: 'Alice Martin', entreprise: 'Soft Solution', tel: '07 88 99 00 11', statut: 'appele', valeur: 3000, score: 4, resp: 'Lilian', dateRelance: '2026-03-25', created: '2026-03-05', isExample: true },
-      { id: 'ex3', nom: 'Marc Durand', entreprise: 'Global Log', tel: '06 55 44 33 22', statut: 'repondu', valeur: 5000, score: 5, resp: 'Lilian', dateRelance: '2026-03-28', created: '2026-03-10', isExample: true },
-      { id: 'ex4', nom: 'Sophie Petit', entreprise: 'Innov Art', tel: '06 11 22 33 44', statut: 'rdv_planifie', valeur: 2500, score: 2, resp: 'Admin', dateRelance: '2026-04-02', created: '2026-03-12', isExample: true },
-      { id: 'ex5', nom: 'Thomas Roux', entreprise: 'Build It', tel: '07 44 55 66 77', statut: 'rdv_effectue', valeur: 8000, score: 4, resp: 'Admin', dateRelance: '2026-03-20', created: '2026-03-15', isExample: true },
-      { id: 'ex6', nom: 'Julie Morel', entreprise: 'Fresh Food', tel: '06 99 88 77 66', statut: 'signe', valeur: 12000, score: 5, resp: 'Lilian', dateRelance: '', created: '2026-02-20', isExample: true },
-      { id: 'ex7', nom: 'Kevin Garcia', entreprise: 'Fast Delivery', tel: '06 00 11 22 33', statut: 'perdu', valeur: 0, score: 1, resp: 'Lilian', dateRelance: '', created: '2026-03-18', isExample: true },
-      { id: 'ex8', nom: 'Emma Leroy', entreprise: 'Zen Garden', tel: '07 12 34 56 78', statut: 'appeler', valeur: 900, score: 3, resp: 'Admin', dateRelance: '2026-04-15', created: '2026-03-20', isExample: true }
+      { id: 'ex1', nom: 'Jean Dupont', entreprise: 'Tech Corp', tel: '06 12 34 56 78', statut: 'exemple', valeur: 1500, score: 3, resp: 'Lilian', dateRelance: '2026-04-10', created: '2026-03-01' },
+      { id: 'ex2', nom: 'Alice Martin', entreprise: 'Soft Solution', tel: '07 88 99 00 11', statut: 'exemple', valeur: 3000, score: 4, resp: 'Lilian', dateRelance: '2026-03-25', created: '2026-03-05' },
+      { id: 'ex3', nom: 'Marc Durand', entreprise: 'Global Log', tel: '06 55 44 33 22', statut: 'exemple', valeur: 5000, score: 5, resp: 'Lilian', dateRelance: '2026-03-28', created: '2026-03-10' },
+      { id: 'ex4', nom: 'Sophie Petit', entreprise: 'Innov Art', tel: '06 11 22 33 44', statut: 'exemple', valeur: 2500, score: 2, resp: 'Admin', dateRelance: '2026-04-02', created: '2026-03-12' },
+      { id: 'ex5', nom: 'Thomas Roux', entreprise: 'Build It', tel: '07 44 55 66 77', statut: 'exemple', valeur: 8000, score: 4, resp: 'Admin', dateRelance: '2026-03-20', created: '2026-03-15' },
+      { id: 'ex6', nom: 'Julie Morel', entreprise: 'Fresh Food', tel: '06 99 88 77 66', statut: 'exemple', valeur: 12000, score: 5, resp: 'Lilian', dateRelance: '', created: '2026-02-20' },
+      { id: 'ex7', nom: 'Kevin Garcia', entreprise: 'Fast Delivery', tel: '06 00 11 22 33', statut: 'exemple', valeur: 0, score: 1, resp: 'Lilian', dateRelance: '', created: '2026-03-18' },
+      { id: 'ex8', nom: 'Emma Leroy', entreprise: 'Zen Garden', tel: '07 12 34 56 78', statut: 'exemple', valeur: 900, score: 3, resp: 'Admin', dateRelance: '2026-04-15', created: '2026-03-20' }
     ];
 
     function computePipelineData() {
@@ -2676,6 +2820,59 @@
     <div class="kpi-label"><span>${k.label}</span><div class="kpi-icon" style="background:${k.bg};color:${k.fg}">${k.icon}</div></div>
     <div class="kpi-val">${k.val}</div>
   </div>`).join('');
+    }
+
+    // ─── STATUS MULTI-SELECT ───
+    function toggleStatusDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('statusOptions').classList.toggle('show');
+    }
+    window.addEventListener('click', () => { document.getElementById('statusOptions').classList.remove('show'); });
+
+    function getSelectedStatuses() {
+      const cbs = document.querySelectorAll('.status-cb:checked');
+      return Array.from(cbs).map(cb => cb.value);
+    }
+
+    function toggleOneStatus(e, val) {
+      e.stopPropagation();
+      const cb = e.currentTarget.querySelector('input');
+      cb.checked = !cb.checked;
+      updateStatusLabel();
+      renderTable();
+    }
+
+    function toggleAllStatuses(e) {
+      e.stopPropagation();
+      const master = document.getElementById('checkAllStatus');
+      master.checked = !master.checked;
+      const cbs = document.querySelectorAll('.status-cb');
+      cbs.forEach(cb => {
+        // "Tous les statuts" selection logic: exclude 'exemple' from the "All" toggle
+        if (cb.value !== 'exemple') cb.checked = master.checked;
+      });
+      updateStatusLabel();
+      renderTable();
+    }
+
+    function updateStatusLabel() {
+      const st = getSelectedStatuses();
+      const label = document.getElementById('statusTriggerLabel');
+      const master = document.getElementById('checkAllStatus');
+      
+      const realStatusesCount = document.querySelectorAll('.status-cb[value!="exemple"]').length;
+      const selectedRealCount = Array.from(document.querySelectorAll('.status-cb[value!="exemple"]:checked')).length;
+
+      if (selectedRealCount === realStatusesCount && !document.querySelector('.status-cb[value="exemple"]:checked')) {
+        label.innerHTML = 'Tous les statuts';
+        master.checked = true;
+      } else if (st.length === 0) {
+        label.innerHTML = 'Aucun filtrage';
+        master.checked = false;
+      } else {
+        label.innerHTML = `${st.length} statut${st.length > 1 ? 's' : ''}`;
+        master.checked = selectedRealCount === realStatusesCount;
+      }
     }
 
     // ─── SORT ───
@@ -2824,7 +3021,7 @@
     }
 
     // ─── TABLE ───
-    const statusMap = { appeler: 'À appeler', appele: 'Appelé', repondu: 'Répondu', rdv_planifie: 'RDV planifié', rdv_effectue: 'RDV effectué', signe: 'Signé', perdu: 'Perdu', npai: 'Faux N°/NPAI' };
+    const statusMap = { appeler: 'À appeler', appele: 'Appelé', repondu: 'Répondu', rdv_planifie: 'RDV planifié', rdv_effectue: 'RDV effectué', signe: 'Signé', perdu: 'Perdu', npai: 'Faux N°/NPAI', exemple: 'Exemple' };
     const badgeCss = {
       appeler: `background:#E6F1FB;color:#185FA5`,
       appele: `background:#EEEDFE;color:#534AB7`,
@@ -2833,7 +3030,8 @@
       rdv_effectue: `background:#EAF3DE;color:#0F6E56`,
       signe: `background:#D4EDDA;color:#27500A`,
       perdu: `background:#FCEBEB;color:#A32D2D`,
-      npai: `background:#E6E6E6;color:#5A5A5A;text-decoration:line-through;`
+      npai: `background:#E6E6E6;color:#5A5A5A;text-decoration:line-through;`,
+      exemple: `background:#F0F0F5;color:#6B7280;border:0.5px dashed #D1D5DB`
     };
 
     let showOnlyToday = false;
@@ -2846,13 +3044,13 @@
 
     function renderTable() {
       const q = document.getElementById('searchQ').value.toLowerCase();
-      const st = document.getElementById('filterStatus').value;
+      const st = getSelectedStatuses(); // Multi-select array
       const rs = document.getElementById('filterResp').value;
       const today = new Date().toISOString().split('T')[0];
 
       // Merge real prospects with examples for display
       let rows = [...prospects, ...EXAMPLE_PROSPECTS].filter(p => {
-        if (st && p.statut !== st) return false;
+        if (st.length > 0 && !st.includes(p.statut)) return false;
         if (rs && p.resp !== rs) return false;
         if (showOnlyToday) {
           if (p.statut === 'signe' || p.statut === 'perdu') return false;
