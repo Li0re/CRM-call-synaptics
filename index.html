@@ -319,7 +319,19 @@
     .nav-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      width: 56px;
+      height: 100%;
+      justify-content: center;
+      border-right: 0.5px solid var(--border2);
+      flex-shrink: 0;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Update: logo area needs to expand with sidebar if open */
+    html.sidebar-open .nav-left {
+      width: 240px;
+      justify-content: flex-start;
+      padding-left: 16px;
     }
 
     .nav-logo {
@@ -332,16 +344,13 @@
       transition: color 0.15s;
       user-select: none;
       -webkit-user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .nav-logo:hover {
       color: var(--blue);
-    }
-
-    .nav-divider {
-      width: 1px;
-      height: 20px;
-      background: var(--border2);
     }
 
     .nav-badge {
@@ -351,6 +360,7 @@
       padding: 3px 10px;
       border-radius: 20px;
       border: 0.5px solid var(--border);
+      margin-left: 12px;
     }
 
     .nav-right {
@@ -2699,7 +2709,7 @@
       svg.innerHTML = '';
       const W = 800, H = 220, mid = H / 2, max = currentData[0] || 1;
       // Visual heights with minimum funnel taper (each stage ≤ 85% of previous visually)
-      const MIN_H = 40; // minimum thickness for hoverability
+      const MIN_H = 16; // minimum thickness for hoverability
       const rawH = currentData.map(v => Math.max(MIN_H, (v / max) * (H * 0.78)));
       const visH = [rawH[0]];
       for (let j = 1; j < rawH.length; j++) { visH[j] = Math.max(MIN_H, Math.min(rawH[j], visH[j - 1] * 0.85)); }
@@ -3326,11 +3336,14 @@
       const sb = document.getElementById('sidebar');
       const ov = document.getElementById('sidebarOverlay');
       sb.classList.toggle('open');
-      ov.classList.toggle('active', sb.classList.contains('open'));
+      const isOpen = sb.classList.contains('open');
+      ov.classList.toggle('active', isOpen);
+      document.documentElement.classList.toggle('sidebar-open', isOpen);
     }
     function closeSidebar() {
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('sidebarOverlay').classList.remove('active');
+      document.documentElement.classList.remove('sidebar-open');
     }
 
     const pageNames = { dashboard: 'Dashboard', 'import-export': 'Import / Export', parametres: 'Paramètres' };
