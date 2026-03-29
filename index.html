@@ -285,7 +285,7 @@
     /* ── TOPNAV ── */
     .topnav {
       background: var(--surface);
-      border-bottom: 0.5px solid var(--border);
+      border-bottom: none;
       padding: 0 24px;
       height: 52px;
       display: flex;
@@ -2047,7 +2047,6 @@
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
             <span class="item-label">Import / Export</span>
-            <span class="di-badge">Bêta</span>
           </button>
           <button id="nav-settings" class="sidebar-item" onclick="switchPage('parametres', this)">
             <svg viewBox="0 0 24 24">
@@ -2058,7 +2057,7 @@
             <span class="item-label">Paramètres</span>
           </button>
         </div>
-        <div class="sidebar-footer">Synaptics Call CRM v1.0 — Bêta</div>
+        <div class="sidebar-footer">Synaptics Call CRM v1.0</div>
       </aside>
 
       <div class="main-content">
@@ -2197,8 +2196,7 @@
                 <div class="card-title">Import / Export de prospects</div>
               </div>
               <p style="color:var(--text2);font-size:13px;margin-bottom:20px;">Importez des prospects depuis un fichier
-                CSV ou exportez votre base actuelle. Cette fonctionnalité sera connectée à une base de données dans une
-                prochaine version.</p>
+                CSV ou exportez votre base actuelle.</p>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
                 <!-- Import -->
@@ -2283,16 +2281,7 @@
                 </div>
               </div>
 
-              <div
-                style="margin-top:16px;padding:12px 14px;background:var(--amber-l);border-radius:var(--radius);font-size:12px;color:var(--amber-d);display:flex;align-items:center;gap:8px">
-                <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"
-                  viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                Bêta — Les données sont stockées localement. La synchronisation avec une base distante arrive bientôt.
-              </div>
+
             </div>
           </div><!-- /page-import-export -->
 
@@ -3334,13 +3323,18 @@
       if (!el) return;
       let html = teamMembers.map((m, i) => {
         const count = prospects.filter(p => p.resp === m.name).length;
-        return `<div class="resp-item" style="justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:10px">
+        return `<div class="resp-item" style="justify-content:space-between" id="teamRow${i}">
+      <div style="display:flex;align-items:center;gap:10px;flex:1">
         <div class="av" style="background:${m.bg};color:${m.fg}">${m.name[0]}</div>
-        <div class="resp-name">${m.name}</div>
+        <div class="resp-name" id="teamName${i}">${m.name}</div>
         <div class="rs" style="font-size:11px;color:var(--text3)"><b>${count}</b> prospect${count > 1 ? 's' : ''}</div>
       </div>
-      <button onclick="removeTeamMember(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.color='#E24B4A';this.style.background='rgba(226,75,74,0.1)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Supprimer">&times;</button>
+      <div style="display:flex;align-items:center;gap:2px">
+        <button onclick="startEditTeamMember(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:4px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.color='var(--blue)';this.style.background='rgba(99,145,255,0.1)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Modifier le nom">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button onclick="removeTeamMember(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.color='#E24B4A';this.style.background='rgba(226,75,74,0.1)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Supprimer">&times;</button>
+      </div>
     </div>`;
       }).join('');
 
@@ -3351,6 +3345,37 @@
 
       el.innerHTML = html;
       updateRespSelects();
+    }
+
+    function startEditTeamMember(i) {
+      const nameEl = document.getElementById('teamName' + i);
+      if (!nameEl) return;
+      const currentName = teamMembers[i].name;
+      nameEl.innerHTML = `<div style="display:flex;align-items:center;gap:6px">
+        <input type="text" id="editMemberInput${i}" value="${currentName}" style="width:120px;padding:4px 8px;border:1px solid var(--blue);border-radius:6px;background:var(--surface2);color:var(--text);font-size:13px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')confirmEditTeamMember(${i});if(event.key==='Escape')renderSettingsTeam()"/>
+        <button onclick="confirmEditTeamMember(${i})" style="background:var(--blue);border:none;cursor:pointer;color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit">OK</button>
+        <button onclick="renderSettingsTeam()" style="background:none;border:0.5px solid var(--border2);cursor:pointer;color:var(--text3);font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit">✕</button>
+      </div>`;
+      const input = document.getElementById('editMemberInput' + i);
+      if (input) { input.focus(); input.select(); }
+    }
+
+    function confirmEditTeamMember(i) {
+      const input = document.getElementById('editMemberInput' + i);
+      if (!input) return;
+      const newName = input.value.trim();
+      if (!newName) return;
+      const oldName = teamMembers[i].name;
+      if (newName === oldName) { renderSettingsTeam(); return; }
+      if (teamMembers.some((m, j) => j !== i && m.name.toLowerCase() === newName.toLowerCase())) {
+        alert('Ce nom existe déjà.');
+        return;
+      }
+      // Update all prospects assigned to this member
+      prospects.forEach(p => { if (p.resp === oldName) p.resp = newName; });
+      teamMembers[i].name = newName;
+      renderSettingsTeam();
+      renderAll();
     }
 
     function addTeamMember() {
