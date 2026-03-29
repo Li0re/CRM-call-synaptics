@@ -304,7 +304,7 @@
     .topnav {
       background: var(--surface);
       border-bottom: 0.5px solid var(--border2);
-      padding: 0;
+      padding: 0 24px;
       height: 52px;
       display: flex;
       align-items: center;
@@ -316,22 +316,26 @@
       z-index: 400;
     }
 
+    /* Vertical separator for continuity */
+    .topnav::after {
+      content: '';
+      position: absolute;
+      left: 56px;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
+      background: var(--border2);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html.sidebar-open .topnav::after {
+      left: 240px;
+    }
+
     .nav-left {
       display: flex;
       align-items: center;
-      width: 56px;
-      height: 100%;
-      justify-content: center;
-      border-right: 0.5px solid var(--border2);
-      flex-shrink: 0;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Update: logo area needs to expand with sidebar if open */
-    html.sidebar-open .nav-left {
-      width: 240px;
-      justify-content: flex-start;
-      padding-left: 16px;
+      gap: 12px;
     }
 
     .nav-logo {
@@ -344,13 +348,16 @@
       transition: color 0.15s;
       user-select: none;
       -webkit-user-select: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .nav-logo:hover {
       color: var(--blue);
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border2);
     }
 
     .nav-badge {
@@ -360,14 +367,12 @@
       padding: 3px 10px;
       border-radius: 20px;
       border: 0.5px solid var(--border);
-      margin-left: 16px;
     }
 
     .nav-right {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-right: 24px;
     }
 
     .nav-user {
@@ -2710,7 +2715,7 @@
       svg.innerHTML = '';
       const W = 800, H = 220, mid = H / 2, max = currentData[0] || 1;
       // Visual heights with minimum funnel taper (each stage ≤ 85% of previous visually)
-      const MIN_H = 10; // minimum thickness for hoverability
+      const MIN_H = 6; // minimum thickness for hoverability
       const rawH = currentData.map(v => Math.max(MIN_H, (v / max) * (H * 0.78)));
       const visH = [rawH[0]];
       for (let j = 1; j < rawH.length; j++) { visH[j] = Math.max(MIN_H, Math.min(rawH[j], visH[j - 1] * 0.85)); }
