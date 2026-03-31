@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(sips -g pixelWidth -g pixelHeight \"/Users/lilian/Desktop/CRM call synaptics/Logo_SYNAPTICS.png\")",
+      "Bash(sips -z 128 128 --setProperty format png \"/Users/lilian/Desktop/CRM call synaptics/Logo_SYNAPTICS.png\" --out \"/Users/lilian/Desktop/CRM call synaptics/logo_small.png\")",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
