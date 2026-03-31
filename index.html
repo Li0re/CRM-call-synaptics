@@ -2279,6 +2279,91 @@
       }
     }
 
+    /* ── GHOST INPUTS & PREMIUM POLISH ── */
+    .ghost-input {
+      border: none;
+      background: none;
+      padding: 4px 6px;
+      border-radius: 4px;
+      outline: none;
+      width: 100%;
+      color: inherit;
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      transition: background 0.2s;
+    }
+    .ghost-input:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+    html.dark .ghost-input:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .ghost-input:focus {
+      background: var(--surface2);
+      box-shadow: inset 0 0 0 1px var(--blue);
+    }
+
+    .badge-select {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      text-align: center;
+      text-align-last: center;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .badge-select:hover { transform: scale(1.05); }
+
+    .btn-action {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-action:hover {
+      background: var(--blue-d);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .note-cell-icon {
+      cursor: pointer;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .note-cell-icon:hover {
+      background: var(--surface2);
+      color: var(--blue);
+      transform: scale(1.1);
+    }
+    .note-cell-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     /* ── FLATPICKR CUSTOM THEME ── */
     .flatpickr-calendar {
       background: var(--surface) !important;
@@ -3457,17 +3542,17 @@
         <td><input type="checkbox" class="pro-row-cb" value="${p.id}" onclick="updateProBulkBar()"/></td>
         <td><div class="prospect-name">
           <div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div>
-          <span style="font-weight:600">${p.nom || ''}</span>
+          <input type="text" class="ghost-input" style="font-weight:600" value="${p.nom || ''}" onchange="updateInline('${p.id}','nom',this.value)"/>
         </div></td>
-        <td style="font-size:12px;color:var(--text2)">${p.telephone || '—'}</td>
-        <td style="font-size:12px;color:var(--text2)">${p.email || '—'}</td>
-        <td style="font-size:12px;color:var(--text2)">${p.entreprise || '—'}</td>
+        <td><input type="tel" class="ghost-input" value="${p.telephone || ''}" onchange="updateInline('${p.id}','telephone',this.value)" style="color:var(--text2);font-size:12px"/></td>
+        <td><input type="email" class="ghost-input" value="${p.email || ''}" onchange="updateInline('${p.id}','email',this.value)" style="color:var(--text2);font-size:12px"/></td>
+        <td><input type="text" class="ghost-input" value="${p.entreprise || ''}" onchange="updateInline('${p.id}','entreprise',this.value)" style="color:var(--text2);font-size:12px"/></td>
         <td>${statusSelectHtml(p)}</td>
-        <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
-        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
+        <td><div style="display:flex;align-items:center"><input type="number" class="ghost-input" value="${p.valeur || 0}" onchange="updateInline('${p.id}','valeur',this.value)" style="font-weight:600;width:70px"/><span>€</span></div></td>
+        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><input type="number" class="ghost-input" value="${p.score || 0}" onchange="updateInline('${p.id}','score',this.value)" style="font-size:11px;width:40px;margin-left:5px"/><span>%</span></div></td>
         <td style="font-size:12px;color:var(--text2)">${p.resp || '—'}</td>
         <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
-        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceStr}</td>
+        <td><input type="date" class="ghost-input ${relanceClass}" value="${p.dateRelance || ''}" onchange="updateInline('${p.id}','dateRelance',this.value)" style="font-size:11px;padding:0"/></td>
         <td>${noteIconHtml}</td>
         <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
       </tr>`;
@@ -3945,14 +4030,23 @@
     function addFastRow() {
       const newId = Date.now().toString();
       const today = new Date().toISOString().split('T')[0];
-      prospects.unshift({
+      const newP = {
         id: newId, nom: '', initiales: '+', av: '#E6F1FB:#185FA5',
         telephone: '', email: '', entreprise: '', statut: 'appeler', source: 'Saisie Rapide',
         valeur: 0, score: 0, resp: teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
-      });
+      };
+      prospects.unshift(newP);
       sortCol = null;
       sortDir = 'asc';
       renderAll();
+      // Focus the new name input if on prospects page
+      setTimeout(() => {
+        const tr = document.querySelector(`tr[data-rid="${newId}"]`);
+        if (tr) {
+          const inp = tr.querySelector('input.ghost-input');
+          if (inp) inp.focus();
+        }
+      }, 50);
     }
 
     function saveProspect() {
@@ -4171,7 +4265,10 @@
         renderAll();
       }
       if (id === 'parametres') renderSettingsTeam();
-      if (id === 'prospects') renderProspectsTable();
+      if (id === 'prospects') {
+        renderProPersonBtns();
+        renderProspectsTable();
+      }
       if (id === 'exemples') renderExemplesTable();
     }
 
