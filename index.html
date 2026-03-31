@@ -3443,10 +3443,9 @@
     function buildRowHtml(p, today) {
       const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
       const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
-      const notePreview = p.note ? (p.note.length > 20 ? p.note.substring(0, 20) + '...' : p.note) : '—';
-      const noteHtml = `<div class="note-cell" title="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')">
-        <svg class="note-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        <span>${notePreview}</span>
+      
+      const noteIconHtml = `<div class="note-cell-icon" data-tt="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </div>`;
       
       const isRelanceUrg = p.dateRelance && p.dateRelance <= today && p.statut !== 'signe' && p.statut !== 'perdu';
@@ -3454,11 +3453,20 @@
 
       return `<tr data-rid="${p.id}">
         <td><input type="checkbox" class="pro-row-cb" value="${p.id}" onclick="updateProBulkBar()"/></td>
-        <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span>${p.nom || ''}</span></div></td>
+        <td><div class="prospect-name">
+          <div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div>
+          <input type="text" class="inline-input" style="font-weight:600" value="${p.nom || ''}" onchange="updateInline('${p.id}','nom',this.value)"/>
+        </div></td>
+        <td><input type="tel" class="inline-input" value="${p.telephone || ''}" onchange="updateInline('${p.id}','telephone',this.value)"/></td>
+        <td><input type="email" class="inline-input" value="${p.email || ''}" onchange="updateInline('${p.id}','email',this.value)"/></td>
+        <td><input type="text" class="inline-input" value="${p.entreprise || ''}" onchange="updateInline('${p.id}','entreprise',this.value)"/></td>
         <td>${statusSelectHtml(p)}</td>
-        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:8px">${p.score || 0}%</span></div></td>
+        <td><input type="number" class="inline-input" style="width:70px" value="${p.valeur || 0}" onchange="updateInline('${p.id}','valeur',this.value)"/></td>
+        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
+        <td><div style="font-size:12px;color:var(--text2)">${p.resp || '—'}</div></td>
+        <td><div style="font-size:11px;color:var(--text3)">${p.date || '—'}</div></td>
         <td><input type="date" class="inline-date ${relanceClass}" value="${p.dateRelance || ''}" onchange="updateInline('${p.id}','dateRelance',this.value)"/></td>
-        <td>${noteHtml}</td>
+        <td>${noteIconHtml}</td>
         <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
       </tr>`;
     }
@@ -3472,21 +3480,34 @@
     function renderSparkline() {
       const el = document.getElementById('activitySparkline');
       if (!el) return;
-      const data = [12, 18, 15, 25, 32, 28, 40]; // Dummy activity data
-      const W = el.clientWidth || 200, H = 80;
-      const max = Math.max(...data);
-      const points = data.map((v, i) => `${(i * W) / (data.length - 1)},${H - (v / max) * H}`).join(' ');
+      
+      // Calculate activity for last 7 days (New prospects + Calls)
+      const data = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const ds = d.toISOString().split('T')[0];
+        
+        const newPros = prospects.filter(p => p.date === ds).length;
+        const newCalls = prospects.reduce((s, p) => s + (p.appels || []).filter(a => a.date === ds).length, 0);
+        data.push(newPros + newCalls);
+      }
+
+      const W = el.clientWidth || 200, H = 140;
+      const max = Math.max(...data, 1);
+      const points = data.map((v, i) => `${(i * W) / (data.length - 1)},${H - (v / max) * H * 0.8 - 10}`).join(' ');
       
       el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="none">
         <defs>
           <linearGradient id="sparkGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="var(--blue)" stop-opacity="0.3" />
+            <stop offset="0%" stop-color="var(--blue)" stop-opacity="0.4" />
             <stop offset="100%" stop-color="var(--blue)" stop-opacity="0" />
           </linearGradient>
         </defs>
         <path d="M 0 ${H} L ${points} L ${W} ${H} Z" fill="url(#sparkGradient)" />
-        <polyline points="${points}" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))" />
-        ${data.map((v, i) => `<circle cx="${(i * W) / (data.length - 1)}" cy="${H - (v / max) * H}" r="3" fill="var(--blue)" />`).join('')}
+        <polyline points="${points}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.4))" />
+        ${data.map((v, i) => `<circle cx="${(i * W) / (data.length - 1)}" cy="${H - (v / max) * H * 0.8 - 10}" r="4" fill="var(--blue)" stroke="#1a1a1a" stroke-width="1.5" />`).join('')}
       </svg>`;
     }
 
@@ -4365,27 +4386,51 @@
     function renderExemplesTable() {
       const body = document.getElementById('exempleTableBody');
       if (!body) return;
-      body.innerHTML = EXAMPLE_PROSPECTS.map(p => `<tr><td>${p.nom}</td><td>${p.tel}</td><td>${p.entreprise}</td><td>${p.valeur}€</td><td>${p.score}%</td><td>${p.resp}</td></tr>`).join('');
-    }
-
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('synaptic_theme', isDark ? 'dark' : 'light');
+      body.innerHTML = EXAMPLE_PROSPECTS.map(p => {
+        const { initiales, av } = avatarFromName(p.nom);
+        const [bg, fg] = av.split(':');
+        return `<tr>
+          <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${initiales}</div><span>${p.nom}</span></div></td>
+          <td style="font-family:monospace;color:var(--blue)">${p.telephone || p.tel || '—'}</td>
+          <td style="color:var(--text2)">${p.entreprise || '—'}</td>
+          <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
+          <td>${p.score || 0}%</td>
+          <td>${p.resp || '—'}</td>
+        </tr>`;
+      }).join('');
     }
 
     (function initTooltips() {
       const tt = document.getElementById('synaptic-tooltip');
-      document.querySelectorAll('[data-tt]').forEach(el => {
-        el.addEventListener('mouseenter', () => {
+      function show(e) {
+        const text = e.currentTarget.getAttribute('data-tt');
+        if (!text) return;
+        // If sidebar icon, only show if sidebar is closed
+        if (e.currentTarget.classList.contains('sidebar-item')) {
           if (document.getElementById('sidebar').classList.contains('open')) return;
-          tt.textContent = el.getAttribute('data-tt');
-          tt.classList.add('show');
-        });
-        el.addEventListener('mousemove', (e) => {
-          tt.style.left = (e.clientX + 15) + 'px';
-          tt.style.top = (e.clientY - 10) + 'px';
-        });
-        el.addEventListener('mouseleave', () => tt.classList.remove('show'));
+        }
+        tt.textContent = text;
+        tt.classList.add('show');
+        move(e);
+      }
+      function move(e) {
+        tt.style.left = (e.clientX + 15) + 'px';
+        tt.style.top = (e.clientY - 10) + 'px';
+      }
+      function hide() { tt.classList.remove('show'); }
+
+      // Delegation for dynamic table rows
+      document.addEventListener('mouseover', e => {
+        const el = e.target.closest('[data-tt]');
+        if (el) {
+          el.removeEventListener('mouseenter', show);
+          el.removeEventListener('mousemove', move);
+          el.removeEventListener('mouseleave', hide);
+          el.addEventListener('mouseenter', show);
+          el.addEventListener('mousemove', move);
+          el.addEventListener('mouseleave', hide);
+          show(e);
+        }
       });
     })();
 
