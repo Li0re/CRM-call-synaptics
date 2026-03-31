@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRM Synaptic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -18,6 +21,7 @@
     }
 
     :root {
+      font-family: 'Outfit', sans-serif;
       color-scheme: light;
       --bg: #f8f8f7;
       --surface: #ffffff;
@@ -764,7 +768,72 @@
       padding: 2px 6px;
     }
 
-    /* ── PIPELINE SVG ── */
+    /* ── HERO SECTION ── */
+    .hero-welcome {
+      margin-bottom: 24px;
+      padding: 32px;
+      background: linear-gradient(135deg, var(--blue), #9333ea);
+      border-radius: 20px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+    }
+
+    .hero-greeting {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      opacity: 0.9;
+      font-weight: 400;
+      max-width: 500px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .hero-stat-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(4px);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hero-stat-lbl {
+      font-size: 11px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-deco {
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
     .pipeline-card {
       background: var(--surface);
       border: 0.5px solid var(--border);
@@ -1454,7 +1523,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 500;
       align-items: center;
       justify-content: center;
@@ -1588,7 +1659,48 @@
       opacity: 0.85;
     }
 
-    /* ── ANIMATIONS ── */
+    /* ── TOAST NOTIFICATIONS ── */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      font-size: 13px;
+      font-weight: 500;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .toast-success { border-left: 4px solid var(--green); }
+    .toast-error { border-left: 4px solid var(--red); }
+    .toast-info { border-left: 4px solid var(--blue); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(50px) scale(0.9); }
+    }
     @keyframes pipeReveal {
       from {
         clip-path: inset(0 100% 0 0);
@@ -1790,7 +1902,9 @@
     /* ── SIDEBAR (Twitch-style) ── */
     .sidebar {
       width: 56px;
-      background: var(--surface);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-right: 0.5px solid var(--border2);
       display: flex;
       flex-direction: column;
@@ -1801,6 +1915,10 @@
       left: 0;
       bottom: 0;
       transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    html.dark .sidebar {
+      background: rgba(36, 36, 34, 0.7);
     }
 
     .sidebar.open {
@@ -2306,8 +2424,9 @@
 
           <!-- ══ PAGE: DASHBOARD ══ -->
           <div class="page active" id="page-dashboard">
+            
+            <div id="dashboardHero"></div>
 
-            <!-- KPI ROW -->
             <div class="kpi-row" id="kpiRow"></div>
 
             <div style="display:grid;grid-template-columns: 2fr 1fr;gap:20px;margin-bottom:20px">
@@ -2860,7 +2979,71 @@
   <!-- ══════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════ -->
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const t = document.createElement('div');
+      t.className = `toast toast-${type}`;
+      let icon = '🔔';
+      if (type === 'success') icon = '✅';
+      if (type === 'error') icon = '❌';
+      t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+      container.appendChild(t);
+      setTimeout(() => {
+        t.style.animation = 'toastOut 0.3s forwards';
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+    function renderHero() {
+      const el = document.getElementById('dashboardHero');
+      if (!el) return;
+      const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      const currentHour = new Date().getHours();
+      const greeting = currentHour < 18 ? 'Bonjour' : 'Bonsoir';
+      
+      const totalActive = prospects.filter(p => !['signe', 'perdu', 'npai'].includes(p.statut)).length;
+      const totalValue = prospects.filter(p => p.statut === 'signe').reduce((s, p) => s + (p.valeur || 0), 0);
+      const hotCount = prospects.filter(p => (p.score || 0) >= 80 && !['signe', 'perdu'].includes(p.statut)).length;
+
+      el.innerHTML = `
+        <div class="hero-welcome">
+          <div class="hero-deco"></div>
+          <div class="hero-greeting">${greeting}, ${teamMembers[0]?.name || 'Lilian'} 👋</div>
+          <div class="hero-sub">C'est le ${today}. Vous avez ${totalActive} opportunités actives à gérer aujourd'hui.</div>
+          
+          <div class="hero-stats">
+            <div class="hero-stat-card">
+              <div class="hero-stat-val">${totalValue.toLocaleString('fr-FR')}€</div>
+              <div class="hero-stat-lbl">Chiffre d'affaires</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-val">${hotCount}</div>
+              <div class="hero-stat-lbl">Hot Leads (Score > 80)</div>
+            </div>
+            <div class="hero-stat-card">
+              <div class="hero-stat-val">${prospects.length}</div>
+              <div class="hero-stat-lbl">Base totale</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      renderHero();
+      renderKPI();
+      renderPipeline();
+      renderConv();
+      renderTable();
+      renderTeamStats();
+      renderKanban();
+      renderSparkline();
+      saveData();
+    }
+
     // ─── FIREBASE SIMULATION (IF NEEDED) ───
     const firebaseConfig = {
       apiKey: "AIzaSyC0mvY2HG0x5fpKUYWx1Bs9lKwr6K8I6Yg",
@@ -2980,7 +3163,6 @@
           const saved = localStorage.getItem('synaptic_prospects');
           prospects = saved ? JSON.parse(saved) : getDefaultProspects();
           const savedTeam = localStorage.getItem('synaptic_team');
-          if (savedTeam) teamMembers = JSON.parse(savedTeam);
         } catch (e2) { prospects = getDefaultProspects(); }
         renderAll();
         setTimeout(() => {
@@ -3011,14 +3193,11 @@
     let selStage = null;
 
     const EXAMPLE_PROSPECTS = [
-      { id: 'ex1', nom: 'Jean Dupont', entreprise: 'Tech Corp', tel: '06 12 34 56 78', statut: 'exemple', valeur: 1500, score: 3, resp: 'Lilian', dateRelance: '2026-04-10', created: '2026-03-01' },
-      { id: 'ex2', nom: 'Alice Martin', entreprise: 'Soft Solution', tel: '07 88 99 00 11', statut: 'exemple', valeur: 3000, score: 4, resp: 'Lilian', dateRelance: '2026-03-25', created: '2026-03-05' },
-      { id: 'ex3', nom: 'Marc Durand', entreprise: 'Global Log', tel: '06 55 44 33 22', statut: 'exemple', valeur: 5000, score: 5, resp: 'Lilian', dateRelance: '2026-03-28', created: '2026-03-10' },
-      { id: 'ex4', nom: 'Sophie Petit', entreprise: 'Innov Art', tel: '06 11 22 33 44', statut: 'exemple', valeur: 2500, score: 2, resp: 'Admin', dateRelance: '2026-04-02', created: '2026-03-12' },
-      { id: 'ex5', nom: 'Thomas Roux', entreprise: 'Build It', tel: '07 44 55 66 77', statut: 'exemple', valeur: 8000, score: 4, resp: 'Admin', dateRelance: '2026-03-20', created: '2026-03-15' },
-      { id: 'ex6', nom: 'Julie Morel', entreprise: 'Fresh Food', tel: '06 99 88 77 66', statut: 'exemple', valeur: 12000, score: 5, resp: 'Lilian', dateRelance: '', created: '2026-02-20' },
-      { id: 'ex7', nom: 'Kevin Garcia', entreprise: 'Fast Delivery', tel: '06 00 11 22 33', statut: 'exemple', valeur: 0, score: 1, resp: 'Lilian', dateRelance: '', created: '2026-03-18' },
-      { id: 'ex8', nom: 'Emma Leroy', entreprise: 'Zen Garden', tel: '07 12 34 56 78', statut: 'exemple', valeur: 900, score: 3, resp: 'Admin', dateRelance: '2026-04-15', created: '2026-03-20' }
+      { id: 'ex1', nom: 'Jean Dupont', email: 'j.dupont@techindustries.fr', entreprise: 'Tech Industries', statut: 'appeler', source: 'LinkedIn', valeur: 12000, score: 85, resp: 'Grégory', date: '2024-03-20', dateRelance: '2024-03-25', note: 'Décisionnaire technique, intéressé par la solution Cloud.', initiales: 'JD', av: '#E6F1FB:#185FA5', created: '2024-03-15' },
+      { id: 'ex2', nom: 'Marie Leroy', email: 'm.leroy@luxe-paris.com', entreprise: 'Luxe Paris', statut: 'rdv_planifie', source: 'Instagram', valeur: 45000, score: 95, resp: 'Édouard', date: '2024-03-21', dateRelance: '2024-03-22', note: 'RDV de démo prévu demain à 14h. Fort potentiel.', initiales: 'ML', av: '#EEEDFE:#534AB7', created: '2024-03-18' },
+      { id: 'ex3', nom: 'Thomas Bernard', email: 't.bernard@btp-plus.fr', entreprise: 'BTP Plus', statut: 'signe', source: 'Recommandation', valeur: 8500, score: 100, resp: 'Maxence', date: '2024-03-19', dateRelance: '', note: 'Contrat signé ce matin. Lancement du projet en avril.', initiales: 'TB', av: '#EAF3DE:#0F6E56', created: '2024-03-10' },
+      { id: 'ex4', nom: 'Sophie Martin', email: 'smartin@green-energy.org', entreprise: 'Green Energy', statut: 'repondu', source: 'Webinaire', valeur: 3200, score: 45, resp: 'Grégory', date: '2024-03-22', dateRelance: '2024-03-29', note: 'Profil à qualifier davantage. Budget restreint pour le moment.', initiales: 'SM', av: '#FAEEDA:#854F0B', created: '2024-03-20' },
+      { id: 'ex5', nom: 'Lucas Petit', email: 'lpetit@startup-now.io', entreprise: 'Startup Now', statut: 'perdu', source: 'Autre', valeur: 1500, score: 20, resp: 'Édouard', date: '2024-03-15', dateRelance: '', note: 'Projet abandonné en interne par le client.', initiales: 'LP', av: '#FCEBEB:#A32D2D', created: '2024-03-12' }
     ];
 
     function computePipelineData() {
@@ -3535,7 +3714,7 @@
       prospects.unshift({
         id: newId, nom: '', initiales: '+', av: '#E6F1FB:#185FA5',
         telephone: '', email: '', entreprise: '', statut: 'appeler', source: 'Saisie Rapide',
-        valeur: 0, score: 0, resp: 'Grégory', date: today, dateRelance: today, note: '', appels: []
+        valeur: 0, score: 0, resp: teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
       });
 
       // Force reset urgency filter if any column sort was previously active
@@ -3714,7 +3893,7 @@
     <span><b>${ids.length}</b> sélectionné${ids.length > 1 ? 's' : ''}</span>
     <select id="bulkStatus">${Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('')}</select>
     <button onclick="bulkChangeStatus()">Changer statut</button>
-    <select id="bulkResp"><option value="Grégory">Grégory</option><option value="Édouard">Édouard</option><option value="Maxence">Maxence</option></select>
+    <select id="bulkResp">${teamMembers.map(m => `<option value="${m.name}">${m.name}</option>`).join('')}</select>
     <button onclick="bulkAssign()">Assigner</button>
     <button onclick="bulkDelete()" style="background:rgba(224,60,60,0.5)">Supprimer</button>
     <button class="bulk-close" onclick="toggleAllChecks(false)">×</button>
@@ -3895,7 +4074,7 @@
       const oldName = teamMembers[i].name;
       if (newName === oldName) { renderSettingsTeam(); return; }
       if (teamMembers.some((m, j) => j !== i && m.name.toLowerCase() === newName.toLowerCase())) {
-        alert('Ce nom existe déjà.');
+        showToast('Ce nom existe déjà.', 'error');
         return;
       }
       // Update all prospects assigned to this member
@@ -3910,7 +4089,7 @@
       const name = input.value.trim();
       if (!name) return;
       if (teamMembers.some(m => m.name.toLowerCase() === name.toLowerCase())) {
-        alert('Ce membre existe déjà.');
+        showToast('Ce membre existe déjà.', 'error');
         return;
       }
       const c = teamColors[teamMembers.length % teamColors.length];
@@ -3936,7 +4115,7 @@
     }
 
     function updateRespSelects() {
-      const selects = [document.getElementById('mResp'), document.getElementById('filterResp')];
+      const selects = [document.getElementById('mResp'), document.getElementById('filterResp'), document.getElementById('bulkResp')];
       selects.forEach(sel => {
         if (!sel) return;
         const current = sel.value;
@@ -4409,7 +4588,7 @@
           </div>
           <div class="kpi" style="padding:14px 18px">
             <div class="kpi-label"><span>Score moyen</span></div>
-            <div class="kpi-val" style="font-size:20px">${avgScore}/5</div>
+            <div class="kpi-val" style="font-size:20px">${avgScore}%</div>
           </div>`;
       }
 
@@ -4423,7 +4602,7 @@
           <td style="font-family:monospace;color:var(--blue)">${p.tel || '—'}</td>
           <td style="color:var(--text2)">${p.entreprise || '—'}</td>
           <td style="font-weight:500">${(p.valeur || 0).toLocaleString('fr-FR')} €</td>
-          <td>${p.score || 0}/5</td>
+          <td>${p.score || 0}%</td>
           <td>${p.resp || '—'}</td>
           <td>${relanceStr}</td>
           <td style="color:var(--text3);font-size:12px">${createdStr}</td>
