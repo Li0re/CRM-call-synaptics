@@ -2041,22 +2041,6 @@
       transform: scale(1.12);
     }
 
-    .sidebar:not(.open) .sidebar-item:hover .item-label {
-      opacity: 1;
-      position: absolute;
-      left: 64px;
-      padding: 6px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.4);
-      z-index: 1000;
-      color: var(--text);
-      font-weight: 500;
-      pointer-events: none;
-      animation: fadeIn 0.15s ease-out;
-    }
-
     @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
     .sidebar.open .sidebar-item .item-label {
@@ -2385,7 +2369,7 @@
           <span>Menu</span>
         </button>
         <div class="sidebar-nav">
-          <button id="nav-dashboard" class="sidebar-item active" onclick="switchPage('dashboard', this)">
+          <button id="nav-dashboard" class="sidebar-item active" onclick="switchPage('dashboard', this)" title="Dashboard">
             <svg viewBox="0 0 24 24">
               <rect x="3" y="3" width="7" height="9" rx="1" />
               <rect x="14" y="3" width="7" height="5" rx="1" />
@@ -2394,7 +2378,7 @@
             </svg>
             <span class="item-label">Dashboard</span>
           </button>
-          <button id="nav-kanban" class="sidebar-item" onclick="switchPage('kanban', this)">
+          <button id="nav-kanban" class="sidebar-item" onclick="switchPage('kanban', this)" title="Kanban">
             <svg viewBox="0 0 24 24">
               <rect x="3" y="3" width="5" height="18" rx="1" />
               <rect x="10" y="3" width="5" height="12" rx="1" />
@@ -2402,7 +2386,7 @@
             </svg>
             <span class="item-label">Kanban</span>
           </button>
-          <button id="nav-prospects" class="sidebar-item" onclick="switchPage('prospects', this)">
+          <button id="nav-prospects" class="sidebar-item" onclick="switchPage('prospects', this)" title="Résumé des Prospects">
             <svg viewBox="0 0 24 24">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
               <circle cx="9" cy="7" r="4"/>
@@ -2411,14 +2395,14 @@
             </svg>
             <span class="item-label">Résumé des Prospects</span>
           </button>
-          <button id="nav-exemples" class="sidebar-item" onclick="switchPage('exemples', this)">
+          <button id="nav-exemples" class="sidebar-item" onclick="switchPage('exemples', this)" title="Exemples">
             <svg viewBox="0 0 24 24">
               <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
               <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
             </svg>
             <span class="item-label">Exemples</span>
           </button>
-          <button id="nav-import" class="sidebar-item" onclick="switchPage('import-export', this)">
+          <button id="nav-import" class="sidebar-item" onclick="switchPage('import-export', this)" title="Import / Export">
             <svg viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -2426,7 +2410,7 @@
             </svg>
             <span class="item-label">Import / Export</span>
           </button>
-          <button id="nav-settings" class="sidebar-item" onclick="switchPage('parametres', this)">
+          <button id="nav-settings" class="sidebar-item" onclick="switchPage('parametres', this)" title="Paramètres">
             <svg viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="3" />
               <path
@@ -2833,7 +2817,7 @@
                   </div>
                 </div>
               </div>
-              <div style="text-align:right;font-size:11px;color:var(--text3);margin-top:20px;font-weight:500;font-style:italic">made by lilian</div>
+              <div style="text-align:right;font-size:11px;color:var(--text3);margin-top:20px;font-weight:500;font-style:italic">made by liore</div>
             </div>
           </div><!-- /page-parametres -->
 
