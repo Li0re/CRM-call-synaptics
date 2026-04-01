@@ -4702,8 +4702,31 @@
         move(e);
       }
       function move(e) {
-        tt.style.left = (e.clientX + 15) + 'px';
-        tt.style.top = (e.clientY - 10) + 'px';
+        const padding = 15;
+        let left = e.clientX + padding;
+        let top = e.clientY - 10;
+        
+        const w = tt.offsetWidth;
+        const h = tt.offsetHeight;
+
+        // Si ça dépasse à droite, on met à gauche
+        if (left + w > window.innerWidth) {
+          left = e.clientX - w - padding;
+        }
+        
+        // Sécurité bord gauche
+        if (left < 5) left = 5;
+        
+        // Sécurité bord bas
+        if (top + h > window.innerHeight) {
+          top = e.clientY - h - padding;
+        }
+        
+        // Sécurité bord haut
+        if (top < 5) top = 5;
+
+        tt.style.left = left + 'px';
+        tt.style.top = top + 'px';
       }
       function hide() { tt.classList.remove('show'); }
 
