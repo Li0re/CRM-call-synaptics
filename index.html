@@ -3271,16 +3271,90 @@
     }
 
     function renderAll() {
+      computePipelineData();
       renderHero();
       renderKPI();
       renderPipeline();
       renderConv();
       renderTable();
+      renderProspectsTable();
       renderTeamStats();
       renderKanban();
       renderSparkline();
       saveData();
     }
+
+    // ─── KANBAN ───
+    function renderKanban() {
+      const board = document.getElementById('kanbanBoard');
+      if (!board) return;
+
+      const kanbanKeys = ['appeler', 'appele', 'repondu', 'rdv_planifie', 'rdv_effectue', 'signe'];
+      const kanbanLabels = ['À appeler', 'Appelé', 'Répondu', 'RDV planifié', 'RDV effectué', 'Signé'];
+
+      board.innerHTML = kanbanKeys.map((key, i) => {
+        const colProspects = prospects.filter(p => p.statut === key);
+        return `
+          <div class="kanban-col" ondragover="allowDrop(event)" ondrop="drop(event, '${key}')">
+            <div class="kanban-col-header">
+              <span>${kanbanLabels[i]}</span>
+              <span class="kanban-col-count">${colProspects.length}</span>
+            </div>
+            <div class="kanban-cards">
+              ${colProspects.map(p => {
+                const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
+                return `
+                  <div class="kanban-card" draggable="true" ondragstart="drag(event, '${p.id}')" onclick="openModal('${p.id}')">
+                    <div class="kanban-card-name">${p.nom}</div>
+                    <div class="kanban-card-company">${p.entreprise || '—'}</div>
+                    <div class="kanban-card-footer">
+                      <span class="kanban-card-val">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</span>
+                      <div class="av-sm" style="background:${bg};color:${fg};width:20px;height:20px;font-size:9px">${p.initiales || '+'}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─── DRAG & DROP ───
+    function drag(ev, id) {
+      ev.dataTransfer.setData("prospectId", id);
+      ev.target.classList.add('dragging');
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+      const col = ev.target.closest('.kanban-col');
+      if (col) col.classList.add('drag-over');
+    }
+
+    function drop(ev, newStatus) {
+      ev.preventDefault();
+      const col = ev.target.closest('.kanban-col');
+      if (col) col.classList.remove('drag-over');
+      
+      const id = ev.dataTransfer.getData("prospectId");
+      const p = prospects.find(x => x.id === id);
+      if (p && p.statut !== newStatus) {
+        changeStatus(id, newStatus);
+      }
+      
+      // Cleanup dragging class if any
+      document.querySelectorAll('.kanban-card.dragging').forEach(c => c.classList.remove('dragging'));
+    }
+
+    // Remove drag-over class on leave
+    document.addEventListener('dragleave', e => {
+      const col = e.target.closest('.kanban-col');
+      if (col && !col.contains(e.relatedTarget)) {
+        col.classList.remove('drag-over');
+      }
+    });
+
 
     // ─── FIREBASE SIMULATION (IF NEEDED) ───
     const firebaseConfig = {
@@ -3512,10 +3586,19 @@
         <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       </div>`;
       
-      const isRelanceUrg = p.dateRelance && p.dateRelance <= today && p.statut !== 'signe' && p.statut !== 'perdu';
+      const lastContactDate = p.date ? new Date(p.date) : null;
+      const todayDate = new Date(today);
+      const diffDays = lastContactDate ? Math.floor((todayDate - lastContactDate) / (1000 * 60 * 60 * 24)) : 0;
+      
+      const isLateRelance = p.dateRelance && new Date(p.dateRelance) < todayDate;
+      const isUrgentContact = diffDays > 7;
+      const isRelanceUrg = (isLateRelance || isUrgentContact) && !['signe', 'perdu', 'npai'].includes(p.statut);
+      
       const relanceClass = isRelanceUrg ? 'relance-urgent' : '';
       const relanceStr = p.dateRelance ? new Date(p.dateRelance).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
       const createdStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
+
+      const relanceIndicator = isRelanceUrg ? `<span class="relance-dot relance-late" title="${isUrgentContact ? 'Dernier contact > 7 jours' : 'Relance en retard'}"></span>` : '';
 
       return `<tr data-rid="${p.id}">
         <td><input type="checkbox" class="pro-row-cb" value="${p.id}" onclick="updateProBulkBar()"/></td>
@@ -3531,7 +3614,7 @@
         <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
         <td style="font-size:12px;color:var(--text2)">${p.resp || '—'}</td>
         <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
-        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceStr}</td>
+        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceIndicator}${relanceStr}</td>
         <td>${noteIconHtml}</td>
         <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
       </tr>`;
@@ -3780,16 +3863,28 @@
 
       window.pipeAnimated = true;
       const labDiv = document.getElementById('stageLabels');
-      labDiv.innerHTML = stageNames.map((n, i) => `<div class="sl"><span>${n}</span><strong>${currentData[i]}</strong></div>`).join('');
+      labDiv.innerHTML = stageNames.map((n, i) => {
+        const stageVal = prospects.filter(p => {
+          const sIdx = { appeler: 0, new: 0, appele: 1, contact: 1, repondu: 2, prop: 2, rdv_planifie: 3, rdv_effectue: 3, nego: 3, signe: 4, gagne: 4 };
+          return sIdx[p.statut] === i;
+        }).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+        return `<div class="sl"><span>${n}</span><strong>${currentData[i]}</strong><div style="font-size:10px;opacity:0.7">${stageVal.toLocaleString('fr-FR')}€</div></div>`;
+      }).join('');
     }
 
     function showTT(e, i) {
       const sv = currentData[i], ev = currentData[i + 1];
       const pct = sv > 0 ? Math.round(ev / sv * 100) : 0, lost = sv - ev;
+      const stageVal = prospects.filter(p => {
+        const sIdx = { appeler: 0, new: 0, appele: 1, contact: 1, repondu: 2, prop: 2, rdv_planifie: 3, rdv_effectue: 3, nego: 3, signe: 4, gagne: 4 };
+        return sIdx[p.statut] === i;
+      }).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+      
       const tt = document.getElementById('ptt');
       tt.innerHTML = `<div class="tt-title">${stageNames[i]} → ${stageNames[i + 1]}</div>
     <div class="tt-row"><span>Entrée</span><span>${sv}</span></div>
     <div class="tt-row"><span>Sortie</span><span>${ev}</span></div>
+    <div class="tt-row"><span>Valeur</span><span>${stageVal.toLocaleString('fr-FR')}€</span></div>
     <div class="tt-row"><span>Perdus</span><span style="color:#E24B4A">−${lost}</span></div>
     <div class="tt-row"><span>Taux</span><span style="color:#3B6D11">${pct}%</span></div>`;
       tt.style.opacity = '1'; moveTT(e);
@@ -4370,12 +4465,50 @@
 
     // ─── IMPORT / EXPORT ───
     function exportCSV() {
-      const headers = ['id', 'nom', 'email', 'entreprise', 'statut', 'source', 'valeur', 'score', 'resp', 'date', 'note'];
-      const csv = [headers.join(';')];
-      prospects.forEach(p => {
-        csv.push(headers.map(h => '"' + (p[h] || '').toString().replace(/"/g, '""') + '"').join(';'));
+      const headers = ['id', 'nom', 'email', 'telephone', 'entreprise', 'statut', 'source', 'valeur', 'score', 'resp', 'date', 'dateRelance', 'note'];
+      const csvLines = [headers.join(';')];
+      
+      const q = (document.getElementById('proSearchQ') || {}).value || '';
+      const qLow = q.toLowerCase();
+      const st = getProSelectedStatuses();
+      
+      // Export filtered prospects if on full list page, otherwise all
+      let toExport = prospects.filter(p => {
+        if (p.statut === 'exemple') return false;
+        if (st.length > 0 && !st.includes(p.statut)) return false;
+        if (qLow && !p.nom.toLowerCase().includes(qLow) && !p.entreprise.toLowerCase().includes(qLow)) return false;
+        return true;
       });
-      downloadFile(csv.join('\n'), 'prospects-synaptic.csv', 'text/csv;charset=utf-8');
+
+      toExport.forEach(p => {
+        const row = headers.map(h => {
+          let val = p[h] || '';
+          return `"${val.toString().replace(/"/g, '""')}"`;
+        });
+        csvLines.push(row.join(';'));
+      });
+
+      const blob = new Blob([csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `prospects_synaptic_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('Export CSV réussi !', 'success');
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(prospects, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `syncaptic_export_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      showToast('Export JSON réussi !', 'success');
     }
 
     function downloadFile(content, filename, type) {
@@ -4454,6 +4587,18 @@
     function sortProTable(col) {
       if (proSortCol === col) proSortDir = proSortDir === 'asc' ? 'desc' : 'asc';
       else { proSortCol = col; proSortDir = 'asc'; }
+      
+      // Update sort icons for proTable
+      document.querySelectorAll('#page-prospects .sort-icon').forEach(el => { 
+        el.textContent = ''; 
+        el.parentElement.classList.remove('sort-active'); 
+      });
+      const icon = document.getElementById('pro-sort-' + col);
+      if (icon) { 
+        icon.textContent = proSortDir === 'asc' ? '▲' : '▼'; 
+        icon.parentElement.classList.add('sort-active'); 
+      }
+      
       renderProspectsTable();
     }
 
