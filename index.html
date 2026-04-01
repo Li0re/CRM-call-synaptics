@@ -4203,7 +4203,7 @@
     }
 
     // ─── MULTI-SELECT & BULK ACTIONS ───
-    function toggleProChecks(checked) {
+    function toggleAllProChecks(checked) {
       document.querySelectorAll('.pro-row-cb').forEach(cb => cb.checked = checked);
       updateProBulkBar();
     }
@@ -4231,7 +4231,7 @@
     </select>
     <button class="btn-action" onclick="bulkProAssign()" style="padding:6px 14px">Assigner</button>
     <button class="btn-action" onclick="bulkProDelete()" style="background:rgba(224,60,60,0.8);padding:6px 14px">Supprimer</button>
-    <button class="bulk-close" onclick="toggleProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;padding:0 10px">&times;</button>
+    <button class="bulk-close" onclick="toggleAllProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;padding:0 10px">&times;</button>
   </div>`;
     }
     function bulkProChangeStatus() {
