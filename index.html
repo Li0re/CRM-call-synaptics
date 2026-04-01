@@ -2775,9 +2775,9 @@
                     </div>
                   </div>
 
-                  <button class="btn-today" id="proBtnPriority" onclick="togglePriorityFilter()"
+                  <button class="btn-today" id="proBtnPriority" onclick="filterProList('prioritaires', this)"
                     title="Afficher uniquement les prospects prioritaires (score élevé, RDV proche, relance urgente)">Prioritaires</button>
-                  <button class="btn-today" id="proBtnTodayPro" onclick="toggleProTodayFilter()">Ma liste du jour</button>
+                  <button class="btn-today" id="proBtnTodayPro" onclick="filterProList('aujourdhui', this)">Ma liste du jour</button>
                   <button class="btn-today"
                     style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue)" onclick="addFastRow()"
                     title="Ajouter une ligne vierge en haut du tableau en 1 clic">Ligne Rapide</button>
@@ -4438,9 +4438,16 @@
 
     let proFilterType = 'all';
     function filterProList(type, el) {
-      proFilterType = type;
-      document.querySelectorAll('.nav-sub-btn').forEach(b => b.classList.remove('active'));
-      if (el) el.classList.add('active');
+      if (proFilterType === type) {
+        proFilterType = 'all';
+        if (el) el.classList.remove('active');
+        showToast('Filtre retiré : Affichage de tous les prospects', 'info');
+      } else {
+        proFilterType = type;
+        document.querySelectorAll('.btn-today').forEach(b => b.classList.remove('active'));
+        if (el) el.classList.add('active');
+        showToast('Filtre : ' + (type === 'prioritaires' ? 'Prioritaires' : 'Ma liste du jour'), 'success');
+      }
       renderProspectsTable();
     }
 
@@ -4492,6 +4499,12 @@
           if (va > vb) return proSortDir === 'asc' ? 1 : -1;
           return 0;
         });
+      }
+
+      if (rows.length === 0 && proFilterType !== 'all') {
+        const msg = proFilterType === 'prioritaires' ? 'Aucun prospect prioritaire trouvé.' : 'Rien de prévu pour aujourd\'hui.';
+        body.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text3)">${msg}</td></tr>`;
+        return;
       }
 
       body.innerHTML = rows.map(p => buildRowHtml(p, today)).join('');
