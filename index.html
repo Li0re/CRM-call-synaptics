@@ -3505,12 +3505,16 @@
     let selStage = null;
 
     const EXAMPLE_PROSPECTS = [
-      { id: 'ex1', nom: 'Jean Dupont', email: 'j.dupont@techindustries.fr', entreprise: 'Tech Industries', statut: 'appeler', source: 'LinkedIn', valeur: 12000, score: 85, resp: 'Grégory', date: '2024-03-20', dateRelance: '2024-03-25', note: 'Décisionnaire technique, intéressé par la solution Cloud.', initiales: 'JD', av: '#E6F1FB:#185FA5', created: '2024-03-15' },
-      { id: 'ex2', nom: 'Marie Leroy', email: 'm.leroy@luxe-paris.com', entreprise: 'Luxe Paris', statut: 'rdv_planifie', source: 'Instagram', valeur: 45000, score: 95, resp: 'Édouard', date: '2024-03-21', dateRelance: '2024-03-22', note: 'RDV de démo prévu demain à 14h. Fort potentiel.', initiales: 'ML', av: '#EEEDFE:#534AB7', created: '2024-03-18' },
-      { id: 'ex3', nom: 'Thomas Bernard', email: 't.bernard@btp-plus.fr', entreprise: 'BTP Plus', statut: 'signe', source: 'Recommandation', valeur: 8500, score: 100, resp: 'Maxence', date: '2024-03-19', dateRelance: '', note: 'Contrat signé ce matin. Lancement du projet en avril.', initiales: 'TB', av: '#EAF3DE:#0F6E56', created: '2024-03-10' },
-      { id: 'ex4', nom: 'Sophie Martin', email: 'smartin@green-energy.org', entreprise: 'Green Energy', statut: 'repondu', source: 'Webinaire', valeur: 3200, score: 45, resp: 'Grégory', date: '2024-03-22', dateRelance: '2024-03-29', note: 'Profil à qualifier davantage. Budget restreint pour le moment.', initiales: 'SM', av: '#FAEEDA:#854F0B', created: '2024-03-20' },
-      { id: 'ex5', nom: 'Lucas Petit', email: 'lpetit@startup-now.io', entreprise: 'Startup Now', statut: 'perdu', source: 'Autre', valeur: 1500, score: 20, resp: 'Édouard', date: '2024-03-15', dateRelance: '', note: 'Projet abandonné en interne par le client.', initiales: 'LP', av: '#FCEBEB:#A32D2D', created: '2024-03-12' }
+      { id: 'ex1', nom: 'Jean Dupont', email: 'j.dupont@techindustries.fr', telephone: '06 12 34 56 78', entreprise: 'Tech Industries', statut: 'appeler', source: 'LinkedIn', valeur: 12000, score: 85, resp: 'Grégory', date: '2024-03-20', dateRelance: '2024-03-25', note: 'Décisionnaire technique, intéressé par la solution Cloud.', initiales: 'JD', av: '#E6F1FB:#185FA5', created: '2024-03-15' },
+      { id: 'ex2', nom: 'Marie Leroy', email: 'm.leroy@luxe-paris.com', telephone: '01 23 45 67 89', entreprise: 'Luxe Paris', statut: 'rdv_planifie', source: 'Instagram', valeur: 45000, score: 95, resp: 'Édouard', date: '2024-03-21', dateRelance: '2024-03-22', note: 'RDV de démo prévu demain à 14h. Fort potentiel.', initiales: 'ML', av: '#EEEDFE:#534AB7', created: '2024-03-18' },
+      { id: 'ex3', nom: 'Thomas Bernard', email: 't.bernard@btp-plus.fr', telephone: '07 89 45 61 23', entreprise: 'BTP Plus', statut: 'signe', source: 'Recommandation', valeur: 8500, score: 100, resp: 'Maxence', date: '2024-03-19', dateRelance: '', note: 'Contrat signé ce matin. Lancement du projet en avril.', initiales: 'TB', av: '#EAF3DE:#0F6E56', created: '2024-03-10' },
+      { id: 'ex4', nom: 'Sophie Martin', email: 'smartin@green-energy.org', telephone: '06 55 44 33 22', entreprise: 'Green Energy', statut: 'repondu', source: 'Webinaire', valeur: 3200, score: 45, resp: 'Grégory', date: '2024-03-22', dateRelance: '2024-03-29', note: 'Profil à qualifier davantage. Budget restreint pour le moment.', initiales: 'SM', av: '#FAEEDA:#854F0B', created: '2024-03-20' },
+      { id: 'ex5', nom: 'Lucas Petit', email: 'lpetit@startup-now.io', telephone: '06 11 22 33 44', entreprise: 'Startup Now', statut: 'perdu', source: 'Autre', valeur: 1500, score: 20, resp: 'Édouard', date: '2024-03-15', dateRelance: '', note: 'Projet abandonné en interne par le client.', initiales: 'LP', av: '#FCEBEB:#A32D2D', created: '2024-03-12' }
     ];
+
+    function getDefaultProspects() {
+      return [...EXAMPLE_PROSPECTS];
+    }
 
     function computePipelineData() {
       // Cumulative: a prospect at stage N counts in stages 0..N
@@ -4358,6 +4362,7 @@
         window.pipeAnimated = false;
         renderAll();
       }
+      if (id === 'kanban') renderKanban();
       if (id === 'parametres') renderSettingsTeam();
       if (id === 'prospects') {
         renderProPersonBtns();
