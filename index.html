@@ -787,7 +787,69 @@
       font-size: 16px;
       opacity: 0.9;
       font-weight: 400;
-      max-width: 500px;
+    }
+
+    /* ── WELCOME MODAL ── */
+    #welcomeModalContent {
+      max-width: 400px;
+      text-align: center;
+      padding: 40px 30px;
+    }
+    .welcome-icon {
+      font-size: 50px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .welcome-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .welcome-text {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .welcome-input-wrap {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .welcome-input {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .welcome-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-l);
+    }
+    .btn-welcome {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-welcome:hover {
+      background: var(--blue-d);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
     }
 
     .hero-stats {
@@ -1549,19 +1611,6 @@
     #synaptic-tooltip.show { opacity: 1; }
 
     /* ── MODAL ── */
-    .note-cell {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      color: var(--text2);
-      transition: color 0.15s;
-      max-width: 140px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
     .note-cell:hover {
       color: var(--blue);
     }
@@ -2342,7 +2391,7 @@
       stroke-linejoin: round;
     }
 
-    #proBulkBar {
+    #bulkBar, #proBulkBar {
       position: fixed;
       bottom: -150px;
       left: 50%;
@@ -2352,7 +2401,7 @@
       opacity: 0;
       pointer-events: none;
     }
-    #proBulkBar.active {
+    #bulkBar.active, #proBulkBar.active {
       bottom: 30px;
       opacity: 1;
       pointer-events: auto;
@@ -2994,6 +3043,15 @@
                   <div class="bcard-title">Données locales</div>
                   <p style="color:var(--text2);font-size:12px;margin-bottom:12px">Les prospects sont actuellement
                     stockés dans la mémoire du navigateur.</p>
+                  
+                  <div style="margin-bottom: 20px; padding: 15px; background: var(--surface2); border-radius: 12px;">
+                    <label style="display:block; font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; margin-bottom:8px">Votre Nom (Greeting)</label>
+                    <div style="display:flex; gap:8px">
+                      <input type="text" id="settingUserName" style="flex:1; padding:8px 12px; border:0.5px solid var(--border2); border-radius:8px; background:var(--surface); color:var(--text); font-size:13px; outline:none" />
+                      <button class="btn-save" onclick="saveSettingName()">Enregistrer</button>
+                    </div>
+                  </div>
+
                   <div style="display:flex;gap:8px">
                     <button class="btn-add" style="background:var(--red)"
                       onclick="if(confirm('Réinitialiser toutes les données ? Cette action est irréversible.')) { prospects=getDefaultProspects(); renderAll(); saveData(); }">Réinitialiser
@@ -3185,10 +3243,27 @@
     </div>
   </div>
   <!-- ══════════════════════════════════════
+     MODAL — Bienvenue
+══════════════════════════════════════ -->
+  <div class="modal-bg" id="welcomeModalBg" style="z-index: 10001;">
+    <div class="modal-content" id="welcomeModalContent">
+      <span class="welcome-icon">🚀</span>
+      <div class="welcome-title">Bienvenue sur Synaptics</div>
+      <div class="welcome-text">Pour personnaliser votre interface, dites-nous comment vous souhaitez être appelé.</div>
+      <div class="welcome-input-wrap">
+        <input type="text" id="welcomeNameInput" class="welcome-input" placeholder="Ex: Synaptics" onkeydown="if(event.key==='Enter')saveInitialName()"/>
+      </div>
+      <button class="btn-welcome" onclick="saveInitialName()">C'est parti !</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════ -->
   <div class="toast-container" id="toastContainer"></div>
   <div id="synaptic-tooltip"></div>
+  <div id="bulkBar"></div>
+  <div id="proBulkBar"></div>
 
   <script>  // ─── UTILS ───
     function debounce(fn, delay) {
@@ -3260,10 +3335,11 @@
       const totalValue = prospects.filter(p => p.statut === 'signe').reduce((s, p) => s + (p.valeur || 0), 0);
       const hotCount = prospects.filter(p => (p.score || 0) >= 80 && !['signe', 'perdu'].includes(p.statut)).length;
 
+      const userName = localStorage.getItem('synaptic_user_name') || 'Synaptics';
       el.innerHTML = `
         <div class="hero-welcome">
           <div class="hero-deco"></div>
-          <div class="hero-greeting">${greeting}, ${teamMembers[0]?.name || 'Lilian'} 👋</div>
+          <div class="hero-greeting">${greeting}, ${userName} 👋</div>
           <div class="hero-sub">C'est le ${today}. Vous avez ${totalActive} opportunités actives à gérer aujourd'hui.</div>
           
           <div class="hero-stats">
@@ -3284,19 +3360,7 @@
       `;
     }
 
-    function renderAll() {
-      computePipelineData();
-      renderHero();
-      renderKPI();
-      renderPipeline();
-      renderConv();
-      renderTable();
-      renderProspectsTable();
-      renderTeamStats();
-      renderKanban();
-      renderSparkline();
-      saveData();
-    }
+
 
     // ─── KANBAN ───
     function renderKanban() {
@@ -3503,7 +3567,12 @@
         renderAll();
         setTimeout(() => {
           document.documentElement.classList.add('loaded');
-          if (!localStorage.getItem('synaptic_tour_completed')) startTour();
+          if (!localStorage.getItem('synaptic_user_name')) {
+            toggleModal('welcomeModalBg', true);
+            document.getElementById('welcomeNameInput').focus();
+          } else if (!localStorage.getItem('synaptic_tour_completed')) {
+            startTour();
+          }
         }, 500);
       }).catch(function (e) {
         console.warn('Firebase load error, falling back to localStorage:', e);
@@ -3514,10 +3583,43 @@
         renderAll();
         setTimeout(() => {
           document.documentElement.classList.add('loaded');
-          if (!localStorage.getItem('synaptic_tour_completed')) startTour();
+          if (!localStorage.getItem('synaptic_user_name')) {
+            toggleModal('welcomeModalBg', true);
+            document.getElementById('welcomeNameInput').focus();
+          } else if (!localStorage.getItem('synaptic_tour_completed')) {
+            startTour();
+          }
         }, 500);
       });
     }
+
+    function saveInitialName() {
+      const val = document.getElementById('welcomeNameInput').value.trim() || 'Synaptics';
+      localStorage.setItem('synaptic_user_name', val);
+      toggleModal('welcomeModalBg', false);
+      renderAll();
+      if (!localStorage.getItem('synaptic_tour_completed')) {
+        setTimeout(startTour, 600);
+      }
+    }
+
+    function saveSettingName() {
+      const val = document.getElementById('settingUserName').value.trim();
+      if (!val) return;
+      localStorage.setItem('synaptic_user_name', val);
+      showToast('Nom mis à jour !', 'success');
+      renderAll();
+    }
+
+    // Inside renderSettingsTeam or switchPage('parametres'), ensure input is filled
+    const oldSwitchPage = switchPage;
+    switchPage = function(id, btn) {
+      oldSwitchPage(id, btn);
+      if (id === 'parametres') {
+        const input = document.getElementById('settingUserName');
+        if (input) input.value = localStorage.getItem('synaptic_user_name') || 'Synaptics';
+      }
+    };
 
     // ─── PIPELINE DATA (from real prospects) ───
     const stageMap = { 'new': 'Nouveaux', 'contact': 'Contactés', 'prop': 'Proposition', 'nego': 'Négociation', 'gagne': 'Gagnés' };
@@ -3587,6 +3689,53 @@
       document.getElementById('callDuree').value = Math.ceil(elapsed / 60);
     }
 
+    function buildRowHtml(p, view = 'full') {
+      const isChecked = new Set(getProSelectedIds()).has(p.id) ? 'checked' : '';
+      const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
+      const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
+      const today = new Date().toISOString().split('T')[0];
+      
+      const createdStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—';
+      const relanceStr = p.dateRelance ? new Date(p.dateRelance).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—';
+      const isRelanceUrg = p.dateRelance && p.dateRelance <= today && p.statut !== 'signe' && p.statut !== 'perdu';
+      const relanceClass = isRelanceUrg ? 'relance-urg' : '';
+      const relanceIndicator = isRelanceUrg ? '<span class="status-indicator"></span>' : '';
+
+      if (view === 'dashboard') {
+        const notePreview = p.note ? (p.note.length > 25 ? p.note.substring(0, 25) + '...' : p.note) : '—';
+        return `<tr data-rid="${p.id}">
+          <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
+          <td><span class="badge-select" style="${badgeCss[p.statut] || ''};pointer-events:none;cursor:default;font-size:10px">${statusMap[p.statut] || p.statut}</span></td>
+          <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;color:var(--text2);margin-left:8px">${p.score || 0}%</span></div></td>
+          <td>${respSelectHtml(p)}</td>
+          <td><div class="note-cell" title="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')"><svg class="note-icon"><use href="#icon-edit"/></svg><span>${notePreview}</span></div></td>
+        </tr>`;
+      }
+
+      return `<tr data-rid="${p.id}" class="${p.statut === 'perdu' ? 'row-done' : ''} ${p.statut === 'npai' ? 'row-npai' : ''}">
+        <td><input type="checkbox" class="pro-row-cb" value="${p.id}" ${isChecked} onclick="updateProBulkBar()"/></td>
+        <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
+        <td style="font-size:12px;color:var(--text2)">${p.telephone || '—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${p.email || '—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${p.entreprise || '—'}</td>
+        <td>${statusSelectHtml(p)}</td>
+        <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
+        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
+        <td style="font-size:12px;color:var(--text2)">${respSelectHtml(p)}</td>
+        <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
+        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceIndicator}${relanceStr}</td>
+        <td><div class="note-cell-icon" data-tt="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')"><svg><use href="#icon-edit"/></svg></div></td>
+        <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
+      </tr>`;
+    }
+
+    function respSelectHtml(p) {
+      const resp = p.resp || teamMembers[0]?.name || 'Grégory';
+      return `<select class="ghost-input" onchange="updateInline('${p.id}', 'resp', this.value)" style="font-weight:600;width:auto">
+        ${teamMembers.map(m => `<option value="${m.name}" ${m.name === resp ? 'selected' : ''}>${m.name}</option>`).join('')}
+      </select>`;
+    }
+
     function stopCallTimer() {
       clearInterval(callInterval);
       callInterval = null;
@@ -3615,50 +3764,6 @@
             `<option value="${k}" ${k === s ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
       </div>`;
-    }
-
-    function buildRowHtml(p, today, currentSelectedIds = new Set()) {
-      const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
-      const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
-      
-      const noteIconHtml = `<div class="note-cell-icon" data-tt="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')">
-        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      </div>`;
-      
-      const lastContactDate = p.date ? new Date(p.date) : null;
-      const todayDate = new Date(today);
-      const diffDays = lastContactDate ? Math.floor((todayDate - lastContactDate) / (1000 * 60 * 60 * 24)) : 0;
-      
-      const isLateRelance = p.dateRelance && new Date(p.dateRelance) < todayDate;
-      const isUrgentContact = diffDays > 7;
-      const isRelanceUrg = (isLateRelance || isUrgentContact) && !['signe', 'perdu', 'npai'].includes(p.statut);
-      
-      const relanceClass = isRelanceUrg ? 'relance-urgent' : '';
-      const relanceStr = p.dateRelance ? new Date(p.dateRelance).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
-      const createdStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
-
-      const relanceIndicator = isRelanceUrg ? `<span class="relance-dot relance-late" title="${isUrgentContact ? 'Dernier contact > 7 jours' : 'Relance en retard'}"></span>` : '';
-
-      const isChecked = currentSelectedIds.has(p.id) ? 'checked' : '';
-
-      return `<tr data-rid="${p.id}">
-        <td><input type="checkbox" class="pro-row-cb" value="${p.id}" ${isChecked} onclick="updateProBulkBar()"/></td>
-        <td><div class="prospect-name">
-          <div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div>
-          <span style="font-weight:600">${p.nom || ''}</span>
-        </div></td>
-        <td style="font-size:12px;color:var(--text2)">${p.telephone || '—'}</td>
-        <td style="font-size:12px;color:var(--text2)">${p.email || '—'}</td>
-        <td style="font-size:12px;color:var(--text2)">${p.entreprise || '—'}</td>
-        <td>${statusSelectHtml(p)}</td>
-        <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
-        <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
-        <td style="font-size:12px;color:var(--text2)">${respSelectHtml(p)}</td>
-        <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
-        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceIndicator}${relanceStr}</td>
-        <td>${noteIconHtml}</td>
-        <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
-      </tr>`;
     }
 
     function quickCallResult(res, label) {
@@ -3726,12 +3831,14 @@
 
     function renderAll() { 
       computePipelineData(); 
+      renderHero();
       renderKPI(); 
       renderPipeline(); 
       renderConv(); 
       renderTable(); 
       renderProspectsTable();
       renderTeamStats(); 
+      renderKanban();
       renderSparkline();
       saveData(); 
     }
@@ -3747,11 +3854,11 @@
       const enRetard = prospects.filter(p => p.dateRelance && p.dateRelance < today && p.statut !== 'signe' && p.statut !== 'perdu').length;
 
       const kpis = [
-        { label: 'Prospects actifs', val: actifs.length, icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>', bg: 'var(--blue-l)', fg: 'var(--blue-d)' },
-        { label: 'Pipeline total', val: valeurPipeline.toLocaleString('fr-FR') + ' €', icon: '<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', bg: 'var(--green-l)', fg: 'var(--green-d)' },
-        { label: 'Conversion globale', val: convGlobal + '%', icon: '<svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', bg: 'var(--purple-l)', fg: 'var(--purple-d)', sub: convGlobal >= 20 ? 'c-up' : 'c-dn' },
-        { label: 'Appels aujourd\'hui', val: callsToday, icon: '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>', bg: 'var(--teal-l)', fg: 'var(--teal-d)' },
-        { label: 'Relances en retard', val: enRetard, icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', bg: enRetard > 0 ? 'var(--red-l)' : 'var(--green-l)', fg: enRetard > 0 ? 'var(--red-d)' : 'var(--green-d)' },
+        { label: 'Prospects actifs', val: actifs.length, icon: '<svg><use href="#icon-users"/></svg>', bg: 'var(--blue-l)', fg: 'var(--blue-d)' },
+        { label: 'Pipeline total', val: valeurPipeline.toLocaleString('fr-FR') + ' €', icon: '<svg><use href="#icon-dollar"/></svg>', bg: 'var(--green-l)', fg: 'var(--green-d)' },
+        { label: 'Conversion globale', val: convGlobal + '%', icon: '<svg><use href="#icon-activity"/></svg>', bg: 'var(--purple-l)', fg: 'var(--purple-d)', sub: convGlobal >= 20 ? 'c-up' : 'c-dn' },
+        { label: 'Appels aujourd\'hui', val: callsToday, icon: '<svg><use href="#icon-phone"/></svg>', bg: 'var(--teal-l)', fg: 'var(--teal-d)' },
+        { label: 'Relances en retard', val: enRetard, icon: '<svg><use href="#icon-clock"/></svg>', bg: enRetard > 0 ? 'var(--red-l)' : 'var(--green-l)', fg: enRetard > 0 ? 'var(--red-d)' : 'var(--green-d)' },
       ];
 
       document.getElementById('kpiRow').innerHTML = kpis.map(k => `<div class="kpi">
@@ -4008,7 +4115,6 @@
       const rs = (document.getElementById('filterResp') || {}).value || '';
       const today = new Date().toISOString().split('T')[0];
 
-      // Hot Leads: focus on advanced stages or very high scores
       const hotStatuts = ['rdv_planifie', 'rdv_effectue', 'signe'];
       let rows = prospects.filter(p => {
         if (p.statut === 'exemple') return false;
@@ -4020,11 +4126,9 @@
         return true;
       });
 
-      // Sort: Hotness (Signé first)
-      const hotOrder = { signe: 0, rdv_effectue: 1, rdv_planifie: 2 };
       rows.sort((a, b) => {
-        const aOrd = hotOrder[a.statut] !== undefined ? hotOrder[a.statut] : 9;
-        const bOrd = hotOrder[b.statut] !== undefined ? hotOrder[b.statut] : 9;
+        const order = { signe: 1, rdv_effectue: 2, rdv_planifie: 3 };
+        const aOrd = order[a.statut] || 99, bOrd = order[b.statut] || 99;
         if (aOrd !== bOrd) return aOrd - bOrd;
         return (Number(b.score) || 0) - (Number(a.score) || 0);
       });
@@ -4032,19 +4136,7 @@
       const display = rows.slice(0, 10);
       const body = document.getElementById('tableBody');
       if (!body) return;
-      body.innerHTML = display.map(p => {
-        const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
-        const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
-        const notePreview = p.note ? (p.note.length > 25 ? p.note.substring(0, 25) + '...' : p.note) : '—';
-        const noteHtml = `<div class="note-cell" title="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')"><svg class="note-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span>${notePreview}</span></div>`;
-        return `<tr data-rid="${p.id}">
-          <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
-          <td><span class="badge-select" style="${badgeCss[p.statut] || ''};pointer-events:none;cursor:default;font-size:10px">${statusMap[p.statut] || p.statut}</span></td>
-          <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;color:var(--text2);margin-left:8px">${p.score || 0}%</span></div></td>
-          <td>${respSelectHtml(p)}</td>
-          <td>${noteHtml}</td>
-        </tr>`;
-      }).join('');
+      body.innerHTML = display.map(p => buildRowHtml(p, 'dashboard')).join('');
 
       const tc = document.getElementById('tblCount');
       if (tc) tc.textContent = `${display.length} Lead${display.length > 1 ? 's' : ''} Prioritaire${display.length > 1 ? 's' : ''}`;
@@ -4100,11 +4192,15 @@
       saveData();
     }
 
-    // ─── MODAL ───
+    // ─── MODALS UI HANDLERS ───
+    function toggleModal(id, open) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('open', open);
+    }
+
     var modalProspectId = null;
     function openModal(id = null) {
       modalProspectId = id;
-      const m = document.getElementById('modalBg');
       const title = document.getElementById('modalTitle');
       if (id) {
         title.textContent = 'Modifier le prospect';
@@ -4138,20 +4234,24 @@
         document.getElementById('mRelance').value = '';
         document.getElementById('mNote').value = '';
       }
-      m.classList.add('open');
+      toggleModal('modalBg', true);
     }
-    function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+    function closeModal() { toggleModal('modalBg', false); }
     document.getElementById('modalBg').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
     function openNoteModal(id) {
+      currentNoteProspectId = id;
       const p = prospects.find(x => x.id === id);
       if (!p) return;
-      const m = document.getElementById('noteModalBg');
-      document.getElementById('noteModalId').value = id;
-      document.getElementById('noteModalText').value = p.note || '';
-      m.classList.add('open');
+      document.getElementById('noteProspectName').textContent = p.nom;
+      document.getElementById('noteTextarea').value = p.note || '';
+      toggleModal('noteModalBg', true);
+      document.getElementById('noteTextarea').focus();
     }
-    function closeNoteModal() { document.getElementById('noteModalBg').classList.remove('open'); }
+    function closeNoteModal() { toggleModal('noteModalBg', false); currentNoteProspectId = null; }
+
+
+
     function saveNote() {
       const id = document.getElementById('noteModalId').value;
       const p = prospects.find(x => x.id === id);
@@ -4159,14 +4259,7 @@
       closeNoteModal();
     }
 
-    function avatarFromName(nom) {
-      const parts = (nom || '').trim().split(' ');
-      const ini = (parts[0]?.[0] || '') + (parts[1]?.[0] || '');
-      const avList = ['#B5D4F4:#0C447C', '#C0DD97:#27500A', '#CECBF6:#3C3489', '#FAC775:#633806', '#9FE1CB:#0F6E56', '#F7C1C1:#791F1F'];
-      const charCode = ini.charCodeAt(0) || 0;
-      const av = avList[charCode % avList.length];
-      return { initiales: ini.toUpperCase() || '+', av };
-    }
+
 
     function addFastRow() {
       const newId = Date.now().toString();
@@ -4207,7 +4300,7 @@
         const idx = prospects.findIndex(p => p.id === modalProspectId);
         if (idx > -1) prospects[idx] = { ...prospects[idx], ...data };
       } else {
-        prospects.unshift({ id: Date.now().toString(), ...data });
+        prospects.unshift({ id: Date.now().toString(), ...data, appels: [] });
       }
       renderAll();
       saveData();
@@ -4231,9 +4324,9 @@
       document.getElementById('callResultat').value = 'repondu';
       document.getElementById('callNote').value = '';
       renderCallHistory();
-      document.getElementById('callModalBg').classList.add('open');
+      toggleModal('callModalBg', true);
     }
-    function closeCallModal() { document.getElementById('callModalBg').classList.remove('open'); callProspectId = null; }
+    function closeCallModal() { toggleModal('callModalBg', false); callProspectId = null; }
     document.getElementById('callModalBg').addEventListener('click', e => { if (e.target === e.currentTarget) closeCallModal(); });
 
     function addCall() {
@@ -4282,57 +4375,20 @@
     }
 
     // ─── MULTI-SELECT & BULK ACTIONS ───
-    function toggleAllChecks(checked) {
-      document.querySelectorAll('.row-check').forEach(cb => cb.checked = checked);
-      updateBulkBar();
+    function toggleAllChecks(checked, isPro = false) {
+      const cls = isPro ? '.pro-row-cb' : '.row-check';
+      document.querySelectorAll(cls).forEach(cb => cb.checked = checked);
+      isPro ? updateProBulkBar() : updateBulkBar();
     }
-    function getSelectedIds() {
-      return Array.from(document.querySelectorAll('.row-check:checked')).map(cb => cb.dataset.id);
-    }
-    function updateBulkBar() {
-      const ids = getSelectedIds();
-      const bar = document.getElementById('bulkBar');
-      if (ids.length === 0) { bar.innerHTML = ''; return; }
-      bar.innerHTML = `<div class="bulk-bar">
-    <span><b>${ids.length}</b> sélectionné${ids.length > 1 ? 's' : ''}</span>
-    <select id="bulkStatus">${Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('')}</select>
-    <button onclick="bulkChangeStatus()">Changer statut</button>
-    <select id="bulkResp">${teamMembers.map(m => `<option value="${m.name}">${m.name}</option>`).join('')}</select>
-    <button onclick="bulkAssign()">Assigner</button>
-    <button onclick="bulkDelete()" style="background:rgba(224,60,60,0.5)">Supprimer</button>
-    <button class="bulk-close" onclick="toggleAllChecks(false)">×</button>
-  </div>`;
-    }
-    function bulkChangeStatus() {
-      const ids = getSelectedIds();
-      const st = document.getElementById('bulkStatus').value;
-      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.statut = st; });
-      renderAll();
-    }
-    function bulkAssign() {
-      const ids = getSelectedIds();
-      const r = document.getElementById('bulkResp').value;
-      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.resp = r; });
-      renderAll();
-    }
-    function bulkDelete() {
-      const ids = getSelectedIds();
-      if (!confirm(`Supprimer ${ids.length} prospect(s) ?`)) return;
-      prospects = prospects.filter(p => !ids.includes(p.id));
-      renderAll();
+    function getSelectedIds(isPro = false) {
+      const cls = isPro ? '.pro-row-cb' : '.row-check';
+      return Array.from(document.querySelectorAll(cls + ':checked')).map(cb => isPro ? cb.value : cb.dataset.id);
     }
 
-    // ─── MULTI-SELECT & BULK ACTIONS ───
-    function toggleAllProChecks(checked) {
-      document.querySelectorAll('.pro-row-cb').forEach(cb => cb.checked = checked);
-      updateProBulkBar();
-    }
-    function getProSelectedIds() {
-      return Array.from(document.querySelectorAll('.pro-row-cb:checked')).map(cb => cb.value);
-    }
-    function updateProBulkBar() {
-      const ids = getProSelectedIds();
-      const bar = document.getElementById('proBulkBar');
+    function updateBulkBar(isPro = false) {
+      const ids = getSelectedIds(isPro);
+      const barId = isPro ? 'proBulkBar' : 'bulkBar';
+      const bar = document.getElementById(barId);
       if (!bar) return;
       if (ids.length === 0) { 
         bar.innerHTML = ''; 
@@ -4340,42 +4396,58 @@
         return; 
       }
       bar.classList.add('active');
-      bar.innerHTML = `<div class="bulk-bar" style="border-radius:24px;padding:10px 20px">
-    <span style="font-size:13px;font-weight:700;margin-right:20px;color:var(--text1)">${ids.length} sélectionné${ids.length > 1 ? 's' : ''}</span>
-    
-    <select id="bulkProStatus" class="badge-select" onchange="bulkProChangeStatus()" style="background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);height:38px;padding:0 15px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-width:140px;outline:none;transition:all 0.2s">
-      <option value="" disabled selected>Changer statut...</option>
-      ${Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('')}
-    </select>
+      const statusOptions = Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('');
+      const respOptions = teamMembers.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+      
+      if (isPro) {
+        bar.innerHTML = `<div class="bulk-bar" style="border-radius:24px;padding:10px 20px">
+          <span style="font-size:13px;font-weight:700;margin-right:20px;color:var(--text1)">${ids.length} sélectionné${ids.length > 1 ? 's' : ''}</span>
+          <select id="bulkProStatus" class="badge-select" onchange="bulkProChangeStatus()" style="background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);height:38px;padding:0 15px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;outline:none">
+            <option value="" disabled selected>Changer statut...</option>
+            ${statusOptions}
+          </select>
+          <button class="btn-action" onclick="bulkProDelete()" style="background:rgba(224,60,60,0.1);color:#ff5f5f;border:1px solid rgba(224,60,60,0.2);height:38px;padding:0 20px;border-radius:12px;font-size:13px;font-weight:600;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all 0.2s" title="Supprimer">
+            Supprimer
+          </button>
+          <button class="bulk-close" onclick="toggleAllProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:24px;padding:0 10px;margin-left:5px">&times;</button>
+        </div>`;
+      } else {
+        bar.innerHTML = `<div class="bulk-bar">
+          <span><b>${ids.length}</b> sélectionné${ids.length > 1 ? 's' : ''}</span>
+          <select id="bulkStatus">${statusOptions}</select>
+          <button onclick="bulkChangeStatus(false, document.getElementById('bulkStatus').value)">St.</button>
+          <select id="bulkResp">${respOptions}</select>
+          <button onclick="bulkAssign(false, document.getElementById('bulkResp').value)">As.</button>
+          <button onclick="bulkDelete(false)" style="background:rgba(224,60,60,0.5)">Sup.</button>
+          <button class="bulk-close" onclick="toggleAllChecks(false, false)">×</button>
+        </div>`;
+      }
+    }
 
-    <button class="btn-action" onclick="bulkProDelete()" style="background:rgba(224,60,60,0.1);color:#ff5f5f;border:1px solid rgba(224,60,60,0.2);height:38px;padding:0 20px;border-radius:12px;font-size:13px;font-weight:600;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all 0.2s" title="Supprimer">
-      Supprimer
-    </button>
-    <button class="bulk-close" onclick="toggleAllProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:24px;padding:0 10px;margin-left:5px">&times;</button>
-  </div>`;
-    }
-    function bulkProChangeStatus() {
-      const ids = getProSelectedIds();
-      const st = document.getElementById('bulkProStatus').value;
-      if (!st) return;
-      ids.forEach(id => { 
-        const p = prospects.find(x => x.id === id); 
-        if (p) p.statut = st; 
-      });
+    function bulkChangeStatus(isPro, newStatus) {
+      if (!newStatus) return;
+      const ids = getSelectedIds(isPro);
+      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.statut = newStatus; });
       renderAll();
     }
-    function bulkProAssign() {
-      const ids = getProSelectedIds();
-      const r = document.getElementById('bulkProResp').value;
-      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.resp = r; });
+    function bulkAssign(isPro, newResp) {
+      const ids = getSelectedIds(isPro);
+      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.resp = newResp; });
       renderAll();
     }
-    function bulkProDelete() {
-      const ids = getProSelectedIds();
+    function bulkDelete(isPro) {
+      const ids = getSelectedIds(isPro);
       if (!confirm(`Supprimer ${ids.length} prospect(s) ?`)) return;
       prospects = prospects.filter(p => !ids.includes(p.id));
       renderAll();
     }
+
+    // Adapt legacy calls
+    function toggleAllProChecks(c) { toggleAllChecks(c, true); }
+    function getProSelectedIds() { return getSelectedIds(true); }
+    function updateProBulkBar() { updateBulkBar(true); }
+    function bulkProChangeStatus() { bulkChangeStatus(true, document.getElementById('bulkProStatus').value); }
+    function bulkProDelete() { bulkDelete(true); }
 
     function toggleSidebar() {
       const sb = document.getElementById('sidebar');
@@ -4702,7 +4774,7 @@
         return;
       }
 
-      body.innerHTML = rows.map(p => buildRowHtml(p, today, currentSelectedIds)).join('');
+      body.innerHTML = rows.map(p => buildRowHtml(p, 'full')).join('');
       updateProBulkBar();
     }
 
@@ -4792,7 +4864,14 @@
     })();
 
   </script>
-  <div id="proBulkBar"></div>
-  <div id="bulkBar"></div>
+  <svg style="display: none;">
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></symbol>
+    <symbol id="icon-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+    <symbol id="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+  </svg>
 </body>
 </html>
