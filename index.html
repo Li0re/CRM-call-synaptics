@@ -3653,7 +3653,7 @@
         <td>${statusSelectHtml(p)}</td>
         <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
         <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
-        <td style="font-size:12px;color:var(--text2)">${p.resp || '—'}</td>
+        <td style="font-size:12px;color:var(--text2)">${respSelectHtml(p)}</td>
         <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
         <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceIndicator}${relanceStr}</td>
         <td>${noteIconHtml}</td>
@@ -4041,6 +4041,7 @@
           <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
           <td><span class="badge-select" style="${badgeCss[p.statut] || ''};pointer-events:none;cursor:default;font-size:10px">${statusMap[p.statut] || p.statut}</span></td>
           <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;color:var(--text2);margin-left:8px">${p.score || 0}%</span></div></td>
+          <td>${respSelectHtml(p)}</td>
           <td>${noteHtml}</td>
         </tr>`;
       }).join('');
@@ -4173,7 +4174,7 @@
       const newP = {
         id: newId, nom: '', initiales: '+', av: '#E6F1FB:#185FA5',
         telephone: '', email: '', entreprise: '', statut: 'appeler', source: 'Saisie Rapide',
-        valeur: 0, score: 0, resp: teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
+        valeur: 0, score: 0, resp: proFilterResp || teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
       };
       prospects.unshift(newP);
       sortCol = null;
