@@ -4302,24 +4302,28 @@
         return; 
       }
       bar.classList.add('active');
-      bar.innerHTML = `<div class="bulk-bar">
-    <span style="font-size:13px;font-weight:600;margin-right:12px">${ids.length} sélectionné${ids.length > 1 ? 's' : ''}</span>
+      bar.innerHTML = `<div class="bulk-bar" style="border-radius:24px;padding:10px 20px">
+    <span style="font-size:13px;font-weight:700;margin-right:20px;color:var(--text1)">${ids.length} sélectionné${ids.length > 1 ? 's' : ''}</span>
     
-    <div style="display:flex;align-items:center;gap:6px">
-      <select id="bulkProStatus" class="badge-select" style="background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);height:32px;padding:0 8px;border-radius:8px;font-size:12px">
-        ${Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('')}
-      </select>
-      <button class="btn-action" onclick="bulkProChangeStatus()" style="padding:4px 12px;font-size:11px" title="Changer statut">Statut</button>
-    </div>
+    <select id="bulkProStatus" class="badge-select" onchange="bulkProChangeStatus()" style="background:var(--surface2);color:var(--text);border:0.5px solid var(--border2);height:38px;padding:0 15px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-width:140px;outline:none;transition:all 0.2s">
+      <option value="" disabled selected>Changer statut...</option>
+      ${Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('')}
+    </select>
 
-    <button class="btn-action" onclick="bulkProDelete()" style="background:rgba(224,60,60,0.1);color:#ff5f5f;border:0.5px solid rgba(224,60,60,0.2);padding:6px 14px;font-size:11px;margin-left:auto" title="Supprimer">Supprimer</button>
-    <button class="bulk-close" onclick="toggleAllProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;padding:0 10px">&times;</button>
+    <button class="btn-action" onclick="bulkProDelete()" style="background:rgba(224,60,60,0.1);color:#ff5f5f;border:1px solid rgba(224,60,60,0.2);height:38px;padding:0 20px;border-radius:12px;font-size:13px;font-weight:600;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all 0.2s" title="Supprimer">
+      Supprimer
+    </button>
+    <button class="bulk-close" onclick="toggleAllProChecks(false)" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:24px;padding:0 10px;margin-left:5px">&times;</button>
   </div>`;
     }
     function bulkProChangeStatus() {
       const ids = getProSelectedIds();
       const st = document.getElementById('bulkProStatus').value;
-      ids.forEach(id => { const p = prospects.find(x => x.id === id); if (p) p.statut = st; });
+      if (!st) return;
+      ids.forEach(id => { 
+        const p = prospects.find(x => x.id === id); 
+        if (p) p.statut = st; 
+      });
       renderAll();
     }
     function bulkProAssign() {
