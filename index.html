@@ -3971,6 +3971,7 @@
     function renderKPI() {
       const today = new Date().toISOString().split('T')[0];
       const actifs = prospects.filter(p => p.statut !== 'signe' && p.statut !== 'perdu' && p.statut !== 'npai');
+      const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai');
       const valeurPipeline = actifs.reduce((s, p) => s + (Number(p.valeur) || 0), 0);
       const convGlobal = prospects.length > 0 ? Math.round(prospects.filter(p => p.statut === 'signe').length / prospects.length * 100) : 0;
       const callsToday = prospects.reduce((s, p) => s + (p.appels || []).filter(a => a.date === today).length, 0);
@@ -3978,7 +3979,7 @@
       const enRetard = prospects.filter(p => p.dateRelance && p.dateRelance < today && p.statut !== 'signe' && p.statut !== 'perdu').length;
 
       const kpis = [
-        { label: 'Prospects actifs', val: actifs.length, icon: '<svg><use href="#icon-users"/></svg>', bg: 'var(--blue-l)', fg: 'var(--blue-d)' },
+        { label: 'Prospects (Gagnés + Actifs)', val: tousSaufPerdus.length, icon: '<svg><use href="#icon-users"/></svg>', bg: 'var(--blue-l)', fg: 'var(--blue-d)' },
         { label: 'Pipeline total', val: valeurPipeline.toLocaleString('fr-FR') + ' €', icon: '<svg><use href="#icon-dollar"/></svg>', bg: 'var(--green-l)', fg: 'var(--green-d)' },
         { label: 'Conversion globale', val: convGlobal + '%', icon: '<svg><use href="#icon-activity"/></svg>', bg: 'var(--purple-l)', fg: 'var(--purple-d)', sub: convGlobal >= 20 ? 'c-up' : 'c-dn' },
         { label: 'Appels aujourd\'hui', val: callsToday, icon: '<svg><use href="#icon-phone"/></svg>', bg: 'var(--teal-l)', fg: 'var(--teal-d)' },
@@ -4239,21 +4240,16 @@
       const rs = (document.getElementById('filterResp') || {}).value || '';
       const today = new Date().toISOString().split('T')[0];
 
-      const hotStatuts = ['rdv_planifie', 'rdv_effectue', 'signe'];
       let rows = prospects.filter(p => {
-        const isHot = hotStatuts.includes(p.statut);
-        const isVeryHighScore = (p.score || 0) >= 80;
-        if (!isHot && !isVeryHighScore) return false;
+        if (p.statut === 'perdu' || p.statut === 'npai') return false;
         if (rs && p.resp !== rs) return false;
         if (qLow && !p.nom.toLowerCase().includes(qLow) && !p.entreprise.toLowerCase().includes(qLow)) return false;
         return true;
       });
 
       rows.sort((a, b) => {
-        const order = { signe: 1, rdv_effectue: 2, rdv_planifie: 3 };
-        const aOrd = order[a.statut] || 99, bOrd = order[b.statut] || 99;
-        if (aOrd !== bOrd) return aOrd - bOrd;
-        return (Number(b.score) || 0) - (Number(a.score) || 0);
+        const d_a = a.date || '0', d_b = b.date || '0';
+        return d_b.localeCompare(d_a); // Décroissant pour voir les derniers en premier
       });
 
       const display = rows.slice(0, 10);
@@ -4262,7 +4258,7 @@
       body.innerHTML = display.map(p => buildRowHtml(p, 'dashboard')).join('');
 
       const tc = document.getElementById('tblCount');
-      if (tc) tc.textContent = `${display.length} Lead${display.length > 1 ? 's' : ''} Prioritaire${display.length > 1 ? 's' : ''}`;
+      if (tc) tc.textContent = `${display.length} Dernier${display.length > 1 ? 's' : ''} Prospect${display.length > 1 ? 's' : ''} (Gagné et Actif${display.length > 1 ? 's' : ''})`;
     }
 
     function changeStatus(id, newStatus) {
