@@ -3067,15 +3067,15 @@
                       ou <code
                         style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue);font-weight:600">,</code>
                     </div>
-                    <div
-                      style="font-size:12px;font-family:monospace;background:var(--bg);padding:14px 16px;border-radius:8px;overflow-x:auto;line-height:1.8;border:1px solid var(--border)">
-                      <div style="color:var(--blue);font-weight:700;font-size:13px">
-                        nom;entreprise;typeEntreprise;statut;source;valeur;score;resp;date;note</div>
-                      <div style="color:var(--text)">Marie Durand;Acme
-                        Corp;PME;new;LinkedIn;5000;50;Grégory;2026-03-28;Premier contact</div>
-                      <div style="color:var(--text)">Paul
-                        Martin;TechSoft;contact;Salon;12000;72;Édouard;2026-03-27;Relance prévue</div>
-                    </div>
+                      <div
+                        style="font-size:12px;font-family:monospace;background:var(--bg);padding:14px 16px;border-radius:8px;overflow-x:auto;line-height:1.8;border:1px solid var(--border)">
+                        <div style="color:var(--blue);font-weight:700;font-size:13px">
+                          nom;entreprise;typeEntreprise;statut;source;valeurFixe;valeurMensuelle;score;resp;date;note</div>
+                        <div style="color:var(--text)">Marie Durand;Acme
+                          Corp;PME;new;LinkedIn;5000;100;50;Grégory;2026-03-28;Premier contact</div>
+                        <div style="color:var(--text)">Paul
+                          TechSoft;TechSoft;contact;Salon;12000;0;72;Édouard;2026-03-27;Relance prévue</div>
+                      </div>
                     <div
                       style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:12px;line-height:1.6">
                       <div><strong style="color:var(--text)">Statuts</strong><br><span style="color:var(--text2)">new ·
@@ -3272,9 +3272,15 @@
             <option>Appel sortant</option>
           </select>
         </div>
-        <div class="mfield">
-          <label>Valeur estimée (€)</label>
-          <input type="number" id="mValeur" placeholder="5000" />
+        <div class="mfield" style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--surface2); padding: 12px; border-radius: 12px; border: 0.5px solid var(--border)">
+          <div>
+            <label style="font-weight: 600; color: var(--text2)">Prix Fixe (€)</label>
+            <input type="number" id="mValeurFixe" placeholder="1000" style="background: var(--surface)" />
+          </div>
+          <div>
+            <label style="font-weight: 600; color: var(--text2)">Mensuel (€)</label>
+            <input type="number" id="mValeurMensuelle" placeholder="50" style="background: var(--surface)" />
+          </div>
         </div>
         <div class="mfield">
           <label>Score (0-100)</label>
@@ -3467,10 +3473,10 @@
       const greeting = currentHour < 18 ? 'Bonjour' : 'Bonsoir';
       
       const funnelStatuses = ['appeler', 'new', 'appele', 'contact', 'repondu', 'prop', 'rdv_planifie', 'rdv_effectue', 'nego', 'signe', 'gagne'];
-      const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai' && funnelStatuses.includes(p.statut));
-      const totalActive = tousSaufPerdus.filter(p => !['signe', 'gagne'].includes(p.statut)).length;
-      const caGagne = prospects.filter(p => (p.statut === 'signe' || p.statut === 'gagne')).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
-      const potentielTotal = tousSaufPerdus.reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+      const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai');
+      const totalActive = tousSaufPerdus.filter(p => !['signe', 'gagne'].includes(p.statut) && funnelStatuses.includes(p.statut)).length;
+      const caGagne = prospects.filter(p => (p.statut === 'signe' || p.statut === 'gagne')).reduce((s, p) => s + getACV(p), 0);
+      const potentielTotal = tousSaufPerdus.reduce((s, p) => s + getACV(p), 0);
       const hotCount = prospects.filter(p => (p.score || 0) >= 80 && !['signe', 'perdu', 'npai'].includes(p.statut) && funnelStatuses.includes(p.statut)).length;
 
       const userName = localStorage.getItem('synaptic_user_name') || 'Synaptics';
@@ -3524,7 +3530,9 @@
                     <div class="kanban-card-name">${p.nom}</div>
                     <div class="kanban-card-company">${p.entreprise || '—'}</div>
                     <div class="kanban-card-footer">
-                      <span class="kanban-card-val">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</span>
+                      <span class="kanban-card-val" title="Total Annuel: ${getACV(p).toLocaleString('fr-FR')}€">
+                        ${(Number(p.valeurFixe) || 0).toLocaleString('fr-FR')}€${p.valeurMensuelle > 0 ? ` + ${p.valeurMensuelle}€/m` : ''}
+                      </span>
                       <div class="av-sm" style="background:${bg};color:${fg};width:20px;height:20px;font-size:9px">${p.initiales || '+'}</div>
                     </div>
                   </div>
@@ -3689,7 +3697,16 @@
       // 2. Listen for Prospects Changes
       prospectsListener = db.collection('prospects').onSnapshot(function(snap) {
         const loaded = [];
-        snap.forEach(doc => loaded.push(doc.data()));
+        snap.forEach(doc => {
+          const p = doc.data();
+          // Auto-migration for individual documents
+          if (p.valeur !== undefined && p.valeurFixe === undefined) {
+            p.valeurFixe = Number(p.valeur) || 0;
+            p.valeurMensuelle = 0;
+            delete p.valeur;
+          }
+          loaded.push(p);
+        });
         
         // Handle initial migration if collection is empty
         if (loaded.length === 0 && !dbReady) {
@@ -3815,6 +3832,12 @@
       return [];
     }
 
+    function getACV(p) {
+      const f = Number(p.valeurFixe) || 0;
+      const m = Number(p.valeurMensuelle) || 0;
+      return f + (m * 12);
+    }
+
     function computePipelineData() {
       // Cumulative: a prospect at stage N counts in stages 0..N
       // Order: appeler(0) → appele(1) → repondu(2) → rdv_effectue(3) → signe(4)
@@ -3871,10 +3894,10 @@
           <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;color:var(--text2);margin-left:8px">${p.score || 0}%</span></div></td>
           <td>${respSelectHtml(p)}</td>
           <td><div class="note-cell" title="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')"><svg class="note-icon"><use href="#icon-edit"/></svg><span>${notePreview}</span></div></td>
-          <td style="font-weight:700; color:var(--text)">
-            <input type="text" class="ghost-input" value="${(p.valeur || 0)}" 
-              onchange="updateInline('${p.id}', 'valeur', this.value)" 
-              style="width:60px; font-weight:700; text-align:right" />€
+          <td style="font-weight:700; color:var(--text); font-size:12px">
+            <div style="display:flex; flex-direction:column; align-items:flex-end">
+              <div>${(Number(p.valeurFixe) || 0).toLocaleString('fr-FR')}€${p.valeurMensuelle > 0 ? `<span style="font-size:10px; color:var(--text3); font-weight:400"> + ${p.valeurMensuelle}€/m</span>` : ''}</div>
+            </div>
           </td>
         </tr>`;
       }
@@ -3887,7 +3910,12 @@
         <td style="font-size:12px;color:var(--text2)">${p.entreprise || '—'}</td>
         <td style="font-size:12px;color:var(--text2)">${p.typeEntreprise || '—'}</td>
         <td>${statusSelectHtml(p)}</td>
-        <td style="font-weight:600">${(Number(p.valeur) || 0).toLocaleString('fr-FR')}€</td>
+        <td style="font-weight:600; font-size:12px">
+          <div style="display:flex; flex-direction:column">
+            <div>${(Number(p.valeurFixe) || 0).toLocaleString('fr-FR')}€</div>
+            ${p.valeurMensuelle > 0 ? `<div style="font-size:10px; color:var(--text3); font-weight:400">+ ${p.valeurMensuelle}€/m</div>` : ''}
+          </div>
+        </td>
         <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
         <td style="font-size:12px;color:var(--text2)">${respSelectHtml(p)}</td>
         <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
@@ -4024,8 +4052,8 @@
       const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai' && funnelStatuses.includes(p.statut));
       const actifs = tousSaufPerdus.filter(p => !['signe', 'gagne'].includes(p.statut));
       
-      const valeurTotale = tousSaufPerdus.reduce((s, p) => s + (Number(p.valeur) || 0), 0);
-      const valeurGagne = prospects.filter(p => (p.statut === 'signe' || p.statut === 'gagne')).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+      const valeurTotale = tousSaufPerdus.reduce((s, p) => s + getACV(p), 0);
+      const valeurGagne = prospects.filter(p => (p.statut === 'signe' || p.statut === 'gagne')).reduce((s, p) => s + getACV(p), 0);
       const convGlobal = prospects.length > 0 ? Math.round(prospects.filter(p => p.statut === 'signe').length / prospects.length * 100) : 0;
       const callsToday = prospects.reduce((s, p) => s + (p.appels || []).filter(a => a.date === today).length, 0);
       // Late relances
@@ -4193,7 +4221,7 @@
         const stageVal = prospects.filter(p => {
           const sIdx = { appeler: 0, new: 0, appele: 1, contact: 1, repondu: 2, prop: 2, rdv_planifie: 3, rdv_effectue: 3, nego: 3, signe: 4, gagne: 4 };
           return sIdx[p.statut] === i;
-        }).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+        }).reduce((s, p) => s + getACV(p), 0);
         return `<div class="sl"><span>${n}</span><strong>${currentData[i]}</strong><div style="font-size:10px;opacity:0.7">${stageVal.toLocaleString('fr-FR')}€</div></div>`;
       }).join('');
     }
@@ -4204,7 +4232,7 @@
       const stageVal = prospects.filter(p => {
         const sIdx = { appeler: 0, new: 0, appele: 1, contact: 1, repondu: 2, prop: 2, rdv_planifie: 3, rdv_effectue: 3, nego: 3, signe: 4, gagne: 4 };
         return sIdx[p.statut] === i;
-      }).reduce((s, p) => s + (Number(p.valeur) || 0), 0);
+      }).reduce((s, p) => s + getACV(p), 0);
       
       const tt = document.getElementById('ptt');
       tt.innerHTML = `<div class="tt-title">${stageNames[i]} → ${stageNames[i + 1]}</div>
@@ -4339,7 +4367,7 @@
     function updateInline(id, field, value) {
       const p = prospects.find(x => x.id === id);
       if (!p) return;
-      if (field === 'valeur' || field === 'score') {
+      if (field === 'valeurFixe' || field === 'valeurMensuelle' || field === 'score') {
         p[field] = Number(value) || 0;
         if (field === 'score') p[field] = Math.min(100, Math.max(0, p[field]));
       } else if (field === 'telephone') {
@@ -4388,7 +4416,8 @@
           document.getElementById('mTypeEntreprise').value = p.typeEntreprise || '';
           document.getElementById('mStatut').value = p.statut || 'appeler';
           document.getElementById('mSource').value = p.source || 'LinkedIn';
-          document.getElementById('mValeur').value = p.valeur || 0;
+          document.getElementById('mValeurFixe').value = p.valeurFixe || 0;
+          document.getElementById('mValeurMensuelle').value = p.valeurMensuelle || 0;
           document.getElementById('mScore').value = p.score || 0;
           document.getElementById('mResp').value = p.resp || teamMembers[0]?.name;
           document.getElementById('mDate').value = p.date || '';
@@ -4405,7 +4434,8 @@
         document.getElementById('mTypeEntreprise').value = '';
         document.getElementById('mStatut').value = 'appeler';
         document.getElementById('mSource').value = 'LinkedIn';
-        document.getElementById('mValeur').value = '';
+        document.getElementById('mValeurFixe').value = '';
+        document.getElementById('mValeurMensuelle').value = '';
         document.getElementById('mScore').value = '';
         document.getElementById('mResp').value = teamMembers[0]?.name;
         document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
@@ -4456,7 +4486,7 @@
       const newP = {
         id: newId, nom: '', initiales: '+', av: '#E6F1FB:#185FA5',
         telephone: '', email: '', entreprise: '', typeEntreprise: '', statut: 'appeler', source: 'Saisie Rapide',
-        valeur: 0, score: 0, resp: proFilterResp || teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
+        valeurFixe: 0, valeurMensuelle: 0, score: 0, resp: proFilterResp || teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
       };
       prospects.unshift(newP);
       saveData();
@@ -4479,7 +4509,8 @@
         typeEntreprise: document.getElementById('mTypeEntreprise').value.trim(),
         statut: document.getElementById('mStatut').value,
         source: document.getElementById('mSource').value,
-        valeur: Number(document.getElementById('mValeur').value) || 0,
+        valeurFixe: Number(document.getElementById('mValeurFixe').value) || 0,
+        valeurMensuelle: Number(document.getElementById('mValeurMensuelle').value) || 0,
         score: Math.min(100, Math.max(0, Number(document.getElementById('mScore').value) || 0)),
         resp: document.getElementById('mResp').value,
         date: document.getElementById('mDate').value,
@@ -4764,12 +4795,11 @@
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto">
                     <div class="fix-card-date" style="margin-top:0">${f.createdAt ? new Date(f.createdAt).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')}</div>
                     <div style="display:flex; gap:6px">
-                      <button onclick="openFixModal('${f.id}')" style="background:var(--surface2); border:0.5px solid var(--border); color:var(--text2); cursor:pointer; font-size:12px; padding:4px 8px; border-radius:6px; display:flex; align-items:center; gap:4px; transition:all 0.15s" onmouseover="this.style.background='var(--surface)';this.style.color='var(--blue)'" onmouseout="this.style.background='var(--surface2)';this.style.color='var(--text2)'" title="Modifier">
-                        <svg viewBox="0 0 24 24" style="width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2.5"><use href="#icon-edit"/></svg>
-                        <span>Modifier</span>
+                      <button onclick="openFixModal('${f.id}')" style="background:var(--surface2); border:0.5px solid var(--border); color:var(--text2); cursor:pointer; font-size:14px; padding:6px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:all 0.15s" onmouseover="this.style.background='var(--surface)';this.style.color='var(--blue)'" onmouseout="this.style.background='var(--surface2)';this.style.color='var(--text2)'" title="Modifier">
+                        <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5"><use href="#icon-edit"/></svg>
                       </button>
-                      <button onclick="deleteFixItem('${f.id}')" style="background:var(--red-l); border:0.5px solid var(--red-d); color:var(--red-d); cursor:pointer; font-size:12px; padding:4px 8px; border-radius:6px; display:flex; align-items:center; opacity:0.8; transition:all 0.15s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" title="Supprimer">
-                        <span>Supprimer</span>
+                      <button onclick="deleteFixItem('${f.id}')" style="background:var(--red-l); border:0.5px solid var(--red-d); color:var(--red-d); cursor:pointer; font-size:14px; padding:6px; border-radius:8px; display:flex; align-items:center; justify-content:center; opacity:0.8; transition:all 0.15s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" title="Supprimer">
+                        <svg viewBox="0 0 24 24" style="width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                       </button>
                     </div>
                   </div>
@@ -4964,58 +4994,111 @@
 
     // ─── IMPORT / EXPORT ───
     function exportCSV() {
-      const headers = ['id', 'nom', 'email', 'telephone', 'entreprise', 'typeEntreprise', 'statut', 'source', 'valeur', 'score', 'resp', 'date', 'dateRelance', 'note'];
-      const csvLines = [headers.join(';')];
-      
-      const q = (document.getElementById('proSearchQ') || {}).value || '';
-      const qLow = q.toLowerCase();
-      const st = getProSelectedStatuses();
-      
-      // Export filtered prospects if on full list page, otherwise all
-      let toExport = prospects.filter(p => {
-        if (st.length > 0 && !st.includes(p.statut)) return false;
-        if (qLow && !p.nom.toLowerCase().includes(qLow) && !p.entreprise.toLowerCase().includes(qLow)) return false;
-        return true;
+      const headers = ['id', 'nom', 'email', 'telephone', 'entreprise', 'typeEntreprise', 'statut', 'source', 'valeurFixe', 'valeurMensuelle', 'score', 'resp', 'date', 'dateRelance', 'note'];
+      let csv = headers.join(';') + '\n';
+      prospects.forEach(p => {
+        const row = [
+          p.id || '',
+          p.nom || '',
+          p.email || '',
+          p.telephone || '',
+          p.entreprise || '',
+          p.typeEntreprise || '',
+          p.statut || '',
+          p.source || '',
+          p.valeurFixe || 0,
+          p.valeurMensuelle || 0,
+          p.score || 0,
+          p.resp || '',
+          p.date || '',
+          p.dateRelance || '',
+          (p.note || '').replace(/;/g, ',').replace(/\n/g, ' ')
+        ];
+        csv += row.join(';') + '\n';
       });
-
-      toExport.forEach(p => {
-        const row = headers.map(h => {
-          let val = p[h] || '';
-          return `"${val.toString().replace(/"/g, '""')}"`;
-        });
-        csvLines.push(row.join(';'));
-      });
-
-      const blob = new Blob([csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `prospects_synaptic_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('Export CSV réussi !', 'success');
+      downloadBlob(csv, 'prospects_synaptic.csv', 'text/csv');
     }
 
-    function exportJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(prospects, null, 2));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `syncaptic_export_${new Date().toISOString().split('T')[0]}.json`);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-      showToast('Export JSON réussi !', 'success');
-    }
-
-    function downloadFile(content, filename, type) {
+    function downloadBlob(content, filename, type) {
       const blob = new Blob(['\uFEFF' + content], { type });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = filename;
       a.click();
       URL.revokeObjectURL(a.href);
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(prospects, null, 2));
+      downloadBlob(JSON.stringify(prospects, null, 2), `syncaptic_export_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+      showToast('Export JSON réussi !', 'success');
+    }
+
+    function handleImportFile(file) {
+      if (!file) return;
+      const status = document.getElementById('importStatus');
+      status.textContent = "Traitement de " + file.name + "...";
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const content = e.target.result;
+          if (file.name.endsWith('.json')) {
+            const data = JSON.parse(content);
+            if (Array.isArray(data)) {
+              prospects = data;
+              saveData();
+              renderAll();
+              showToast('Import JSON réussi ! (' + data.length + ' prospects)', 'success');
+            }
+          } else {
+            // CSV Parsing
+            const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length < 2) throw "Fichier trop court";
+            
+            const sep = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(sep).map(h => h.trim().replace(/"/g, ''));
+            const newOnes = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+              const cols = lines[i].split(sep).map(c => c.trim().replace(/"/g, ''));
+              const p = { id: Date.now().toString() + i, appels: [] };
+              
+              headers.forEach((h, idx) => {
+                let val = cols[idx] || '';
+                // Map old 'valeur' to 'valeurFixe' if present
+                if (h === 'valeur' && !headers.includes('valeurFixe')) {
+                  p.valeurFixe = Number(val) || 0;
+                } else if (h === 'valeurFixe' || h === 'valeurMensuelle' || h === 'score') {
+                  p[h] = Number(val) || 0;
+                } else {
+                  p[h] = val;
+                }
+              });
+              
+              // Ensure defaults
+              if (!p.nom && !p.entreprise) return; // skip empty
+              p.valeurFixe = p.valeurFixe || 0;
+              p.valeurMensuelle = p.valeurMensuelle || 0;
+              newOnes.push(p);
+            }
+            
+            if (newOnes.length > 0) {
+              if (confirm(`Importer ${newOnes.length} prospects ? Cela remplacera votre liste actuelle.`)) {
+                prospects = newOnes;
+                saveData();
+                renderAll();
+                showToast('Import CSV réussi !', 'success');
+              }
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Erreur d'import : " + err, "error");
+        }
+        status.textContent = "";
+      };
+      reader.readAsText(file);
     }
 
     var proSortCol = null, proSortDir = 'asc';
@@ -5140,6 +5223,10 @@
       if (proSortCol) {
         rows.sort((a, b) => {
           let va = a[proSortCol], vb = b[proSortCol];
+          if (proSortCol === 'valeur') {
+            va = getACV(a);
+            vb = getACV(b);
+          }
           if (va < vb) return proSortDir === 'asc' ? -1 : 1;
           if (va > vb) return proSortDir === 'asc' ? 1 : -1;
           return 0;
