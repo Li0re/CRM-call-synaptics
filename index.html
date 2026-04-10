@@ -150,13 +150,16 @@
       width: 6px;
       height: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: transparent;
     }
+
     ::-webkit-scrollbar-thumb {
       background: var(--border2);
       border-radius: 4px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: var(--text3);
     }
@@ -249,9 +252,25 @@
       transition: border 0.15s;
     }
 
-    .field input:focus {
+    .field input:focus,
+    .mfield input:focus,
+    .mfield select:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    .status-badge-preview {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      transition: all 0.2s;
+    }
+
+    .resp-item:hover .status-badge-preview {
+      transform: scale(1.02);
     }
 
     .btn-login {
@@ -761,8 +780,15 @@
     /* Consolidated bulk-bar styles further down */
 
     @keyframes slideUp {
-      from { transform: translate(-50%, 40px); opacity: 0; }
-      to { transform: translate(-50%, 0); opacity: 1; }
+      from {
+        transform: translate(-50%, 40px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
     }
 
     .bulk-bar select,
@@ -828,11 +854,13 @@
       text-align: center;
       padding: 40px 30px;
     }
+
     .welcome-icon {
       font-size: 50px;
       margin-bottom: 20px;
       display: block;
     }
+
     .welcome-title {
       font-size: 24px;
       font-weight: 800;
@@ -840,16 +868,19 @@
       margin-bottom: 12px;
       letter-spacing: -0.5px;
     }
+
     .welcome-text {
       font-size: 14px;
       color: var(--text2);
       margin-bottom: 24px;
       line-height: 1.6;
     }
+
     .welcome-input-wrap {
       position: relative;
       margin-bottom: 24px;
     }
+
     .welcome-input {
       width: 100%;
       padding: 14px 20px;
@@ -863,10 +894,12 @@
       transition: all 0.2s;
       text-align: center;
     }
+
     .welcome-input:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 4px var(--blue-l);
     }
+
     .btn-welcome {
       width: 100%;
       padding: 14px;
@@ -879,6 +912,7 @@
       cursor: pointer;
       transition: all 0.2s;
     }
+
     .btn-welcome:hover {
       background: var(--blue-d);
       transform: translateY(-2px);
@@ -919,7 +953,7 @@
       top: -20px;
       width: 180px;
       height: 180px;
-      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -1132,9 +1166,11 @@
       border: 0.5px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 0;
-      overflow: visible; /* Important for multi-select dropdown */
+      overflow: visible;
+      /* Important for multi-select dropdown */
       margin-bottom: 20px;
-      min-height: 500px; /* More space even if empty */
+      min-height: 500px;
+      /* More space even if empty */
     }
 
     .table-top {
@@ -1258,8 +1294,15 @@
     }
 
     @keyframes selectFade {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .status-option {
@@ -1641,7 +1684,9 @@
       white-space: nowrap;
     }
 
-    #synaptic-tooltip.show { opacity: 1; }
+    #synaptic-tooltip.show {
+      opacity: 1;
+    }
 
     /* ── MODAL ── */
     .note-cell:hover {
@@ -1929,8 +1974,14 @@
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
-    .btn-confirm-no:hover { background: var(--border); }
-    .btn-confirm-yes:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4); }
+    .btn-confirm-no:hover {
+      background: var(--border);
+    }
+
+    .btn-confirm-yes:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+    }
 
     .btn-confirm-cancel:hover {
       background: var(--surface2);
@@ -1982,18 +2033,37 @@
       -webkit-backdrop-filter: blur(8px);
     }
 
-    .toast-success { border-left: 4px solid var(--green); }
-    .toast-error { border-left: 4px solid var(--red); }
-    .toast-info { border-left: 4px solid var(--blue); }
+    .toast-success {
+      border-left: 4px solid var(--green);
+    }
+
+    .toast-error {
+      border-left: 4px solid var(--red);
+    }
+
+    .toast-info {
+      border-left: 4px solid var(--blue);
+    }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.9); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     @keyframes toastOut {
-      to { opacity: 0; transform: translateX(50px) scale(0.9); }
+      to {
+        opacity: 0;
+        transform: translateX(50px) scale(0.9);
+      }
     }
+
     @keyframes pipeReveal {
       from {
         clip-path: inset(0 100% 0 0);
@@ -2330,7 +2400,17 @@
       display: block;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
     .sidebar-item .di-badge {
       margin-left: auto;
@@ -2415,9 +2495,17 @@
     }
 
     @keyframes pulseRed {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-      70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
 
     .quick-results {
@@ -2488,12 +2576,15 @@
       font-weight: inherit;
       transition: background 0.2s;
     }
+
     .ghost-input:hover {
       background: rgba(99, 102, 241, 0.05);
     }
+
     html.dark .ghost-input:hover {
       background: rgba(255, 255, 255, 0.05);
     }
+
     .ghost-input:focus {
       background: var(--surface2);
       box-shadow: inset 0 0 0 1px var(--blue);
@@ -2514,7 +2605,10 @@
       text-align-last: center;
       transition: transform 0.2s, background 0.2s;
     }
-    .badge-select:hover { transform: scale(1.05); }
+
+    .badge-select:hover {
+      transform: scale(1.05);
+    }
 
     .btn-action {
       background: var(--blue);
@@ -2527,6 +2621,7 @@
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .btn-action:hover {
       background: var(--blue-d);
       transform: translateY(-1px);
@@ -2544,11 +2639,13 @@
       border-radius: 50%;
       transition: all 0.2s;
     }
+
     .note-cell-icon:hover {
       background: var(--surface2);
       color: var(--blue);
       transform: scale(1.1);
     }
+
     .note-cell-icon svg {
       width: 18px;
       height: 18px;
@@ -2559,7 +2656,8 @@
       stroke-linejoin: round;
     }
 
-    #bulkBar, #proBulkBar {
+    #bulkBar,
+    #proBulkBar {
       position: fixed;
       bottom: -150px;
       left: 50%;
@@ -2569,15 +2667,18 @@
       opacity: 0;
       pointer-events: none;
     }
-    #bulkBar.active, #proBulkBar.active {
+
+    #bulkBar.active,
+    #proBulkBar.active {
       bottom: 30px;
       opacity: 1;
       pointer-events: auto;
     }
+
     .bulk-bar {
       background: rgba(26, 26, 26, 0.8);
       border: 0.5px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       padding: 8px 16px 8px 24px;
       border-radius: 18px;
       display: flex;
@@ -2729,7 +2830,8 @@
 
     <nav class="topnav">
       <div class="nav-left">
-        <div class="nav-logo" onclick="switchPage('dashboard', document.getElementById('nav-dashboard'))" title="Retour à l'accueil">
+        <div class="nav-logo" onclick="switchPage('dashboard', document.getElementById('nav-dashboard'))"
+          title="Retour à l'accueil">
           Synaptics Call CRM
         </div>
         <div class="nav-badge" id="pageBadge">Dashboard</div>
@@ -2768,7 +2870,8 @@
           <span>Menu</span>
         </button>
         <div class="sidebar-nav">
-          <button id="nav-dashboard" class="sidebar-item active" onclick="switchPage('dashboard', this)" data-tt="Dashboard">
+          <button id="nav-dashboard" class="sidebar-item active" onclick="switchPage('dashboard', this)"
+            data-tt="Dashboard">
             <svg viewBox="0 0 24 24">
               <rect x="3" y="3" width="7" height="9" rx="1" />
               <rect x="14" y="3" width="7" height="5" rx="1" />
@@ -2785,16 +2888,18 @@
             </svg>
             <span class="item-label">Kanban</span>
           </button>
-          <button id="nav-prospects" class="sidebar-item" onclick="switchPage('prospects', this)" data-tt="Résumé des Prospects">
+          <button id="nav-prospects" class="sidebar-item" onclick="switchPage('prospects', this)"
+            data-tt="Résumé des Prospects">
             <svg viewBox="0 0 24 24">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-              <path d="M16 3.13a4 4 0 010 7.75"/>
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87" />
+              <path d="M16 3.13a4 4 0 010 7.75" />
             </svg>
             <span class="item-label">Résumé des Prospects</span>
           </button>
-          <button id="nav-import" class="sidebar-item" onclick="switchPage('import-export', this)" data-tt="Import / Export">
+          <button id="nav-import" class="sidebar-item" onclick="switchPage('import-export', this)"
+            data-tt="Import / Export">
             <svg viewBox="0 0 24 24">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -2803,8 +2908,10 @@
             <span class="item-label">Import / Export</span>
           </button>
           <button id="nav-fixe" class="sidebar-item" onclick="switchPage('fixe', this)" data-tt="Fixes & Améliorations">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z" />
             </svg>
             <span class="item-label">Fixe</span>
           </button>
@@ -2825,7 +2932,7 @@
 
           <!-- ══ PAGE: DASHBOARD ══ -->
           <div class="page active" id="page-dashboard">
-            
+
             <div id="dashboardHero"></div>
 
             <div class="kpi-row" id="kpiRow"></div>
@@ -2849,9 +2956,15 @@
               </div>
               <div style="padding:24px; flex:1; display:flex; flex-direction:column; justify-content:center">
                 <div id="activitySparkline" style="height:160px; width:100%"></div>
-                <div id="activityDays" style="display:flex; justify-content:space-between; margin-top:20px; font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:1.5px; font-weight:600"></div>
-                <div style="display:flex; gap:16px; margin-top:16px; padding-top:12px; border-top:0.5px solid var(--border2); font-size:11px; color:var(--text2)">
-                  <div style="display:flex; align-items:center; gap:6px"><div style="width:8px; height:8px; border-radius:100%; background:var(--blue)"></div> Activités cumulées (Prospects + Appels)</div>
+                <div id="activityDays"
+                  style="display:flex; justify-content:space-between; margin-top:20px; font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:1.5px; font-weight:600">
+                </div>
+                <div
+                  style="display:flex; gap:16px; margin-top:16px; padding-top:12px; border-top:0.5px solid var(--border2); font-size:11px; color:var(--text2)">
+                  <div style="display:flex; align-items:center; gap:6px">
+                    <div style="width:8px; height:8px; border-radius:100%; background:var(--blue)"></div> Activités
+                    cumulées (Prospects + Appels)
+                  </div>
                 </div>
               </div>
             </div>
@@ -2887,16 +3000,18 @@
             <div class="table-card">
               <div class="table-top">
                 <div class="ct" style="display:flex;align-items:center;gap:10px">
-                  <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                  <svg viewBox="0 0 24 24"
+                    style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                    <path d="M16 3.13a4 4 0 010 7.75" />
                   </svg>
                   Prospects
                 </div>
                 <div class="table-controls">
-                  <select class="tbl-filter" id="proPersonSelect" onchange="setProResp(this.value)" style="width:140px"></select>
+                  <select class="tbl-filter" id="proPersonSelect" onchange="setProResp(this.value)"
+                    style="width:140px"></select>
                   <input class="tbl-search" type="text" placeholder="Rechercher..." id="proSearchQ"
                     oninput="debouncedRenderProspectsTable()" />
                   <select class="tbl-filter" id="proFilterDate" onchange="renderProspectsTable()">
@@ -2954,7 +3069,8 @@
 
                   <button class="btn-today" id="proBtnPriority" onclick="filterProList('prioritaires', this)"
                     title="Afficher uniquement les prospects prioritaires (score élevé, RDV proche, relance urgente)">Prioritaires</button>
-                  <button class="btn-today" id="proBtnTodayPro" onclick="filterProList('aujourdhui', this)">Ma liste du jour</button>
+                  <button class="btn-today" id="proBtnTodayPro" onclick="filterProList('aujourdhui', this)">Ma liste du
+                    jour</button>
                   <button class="btn-today"
                     style="background:var(--blue-l);color:var(--blue-d);border-color:var(--blue)" onclick="addFastRow()"
                     title="Ajouter une ligne vierge en haut du tableau en 1 clic">Ligne Rapide</button>
@@ -2976,8 +3092,8 @@
                           id="pro-sort-email"></span></th>
                       <th class="sortable" onclick="sortProTable('entreprise')">Entreprise <span class="sort-icon"
                           id="pro-sort-entreprise"></span></th>
-                      <th class="sortable" onclick="sortProTable('typeEntreprise')">Type d'entreprise <span class="sort-icon"
-                          id="pro-sort-typeEntreprise"></span></th>
+                      <th class="sortable" onclick="sortProTable('typeEntreprise')">Type d'entreprise <span
+                          class="sort-icon" id="pro-sort-typeEntreprise"></span></th>
                       <th>Statut</th>
                       <th class="sortable" onclick="sortProTable('valeur')">Valeur (€) <span class="sort-icon"
                           id="pro-sort-valeur"></span></th>
@@ -3007,12 +3123,12 @@
                     <option value="0">Tout</option>
                   </select>
                 </div>
+              </div>
             </div>
-          </div>
 
-          <!-- BULK ACTION BAR (BOTTOM OVERLAY) -->
+            <!-- BULK ACTION BAR (BOTTOM OVERLAY) -->
 
-        </div><!-- /page-prospects -->
+          </div><!-- /page-prospects -->
 
 
 
@@ -3067,15 +3183,16 @@
                       ou <code
                         style="background:var(--surface);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue);font-weight:600">,</code>
                     </div>
-                      <div
-                        style="font-size:12px;font-family:monospace;background:var(--bg);padding:14px 16px;border-radius:8px;overflow-x:auto;line-height:1.8;border:1px solid var(--border)">
-                        <div style="color:var(--blue);font-weight:700;font-size:13px">
-                          nom;entreprise;typeEntreprise;statut;source;valeurFixe;valeurMensuelle;score;resp;date;note</div>
-                        <div style="color:var(--text)">Marie Durand;Acme
-                          Corp;PME;new;LinkedIn;5000;100;50;Grégory;2026-03-28;Premier contact</div>
-                        <div style="color:var(--text)">Paul
-                          TechSoft;TechSoft;contact;Salon;12000;0;72;Édouard;2026-03-27;Relance prévue</div>
+                    <div
+                      style="font-size:12px;font-family:monospace;background:var(--bg);padding:14px 16px;border-radius:8px;overflow-x:auto;line-height:1.8;border:1px solid var(--border)">
+                      <div style="color:var(--blue);font-weight:700;font-size:13px">
+                        nom;entreprise;typeEntreprise;statut;source;valeurFixe;valeurMensuelle;score;resp;date;note
                       </div>
+                      <div style="color:var(--text)">Marie Durand;Acme
+                        Corp;PME;new;LinkedIn;5000;100;50;Grégory;2026-03-28;Premier contact</div>
+                      <div style="color:var(--text)">Paul
+                        TechSoft;TechSoft;contact;Salon;12000;0;72;Édouard;2026-03-27;Relance prévue</div>
+                    </div>
                     <div
                       style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:12px;line-height:1.6">
                       <div><strong style="color:var(--text)">Statuts</strong><br><span style="color:var(--text2)">new ·
@@ -3128,16 +3245,25 @@
                   <div id="settingsTeam"></div>
                 </div>
 
+                <!-- Types d'entreprise -->
+                <div class="bcard">
+                  <div class="bcard-title">Types d'entreprise</div>
+                  <div id="settingsBusinessTypes"></div>
+                </div>
+
                 <!-- Données -->
                 <div class="bcard">
                   <div class="bcard-title">Données locales</div>
                   <p style="color:var(--text2);font-size:12px;margin-bottom:12px">Les prospects sont actuellement
                     stockés dans la mémoire du navigateur et Firestore.</p>
-                  
+
                   <div style="margin-bottom: 20px; padding: 15px; background: var(--surface2); border-radius: 12px;">
-                    <label style="display:block; font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; margin-bottom:8px">Votre Nom (Greeting)</label>
+                    <label
+                      style="display:block; font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; margin-bottom:8px">Votre
+                      Nom (Greeting)</label>
                     <div style="display:flex; gap:8px">
-                      <input type="text" id="settingUserName" style="flex:1; padding:8px 12px; border:0.5px solid var(--border2); border-radius:8px; background:var(--surface); color:var(--text); font-size:13px; outline:none" />
+                      <input type="text" id="settingUserName"
+                        style="flex:1; padding:8px 12px; border:0.5px solid var(--border2); border-radius:8px; background:var(--surface); color:var(--text); font-size:13px; outline:none" />
                       <button class="btn-save" onclick="saveSettingName()">Enregistrer</button>
                     </div>
                   </div>
@@ -3149,7 +3275,9 @@
                   </div>
                 </div>
               </div>
-              <div style="text-align:right;font-size:11px;color:var(--text3);margin-top:20px;font-weight:500;font-style:italic">made by liore</div>
+              <div
+                style="text-align:right;font-size:11px;color:var(--text3);margin-top:20px;font-weight:500;font-style:italic">
+                made by liore</div>
             </div>
           </div><!-- /page-parametres -->
 
@@ -3174,12 +3302,12 @@
             </div>
           </div>
 
-      <!-- ══════════════════════════════════════
+          <!-- ══════════════════════════════════════
      MODAL — Ajouter / Modifier prospect
 ══════════════════════════════════════ -->
-    </div><!-- /main -->
-  </div><!-- /main-content -->
-  </div><!-- /app-body -->
+        </div><!-- /main -->
+      </div><!-- /main-content -->
+    </div><!-- /app-body -->
   </div><!-- /appPage -->
 
   <!-- ══ MODAL: NOTE ══ -->
@@ -3193,7 +3321,8 @@
         <button class="modal-close" onclick="closeNoteModal()">×</button>
       </div>
       <div class="modal-body">
-        <textarea id="noteTextarea" class="note-modal-content" placeholder="Ex: A appeler lundi matin, intéressé par l'offre Pro..."></textarea>
+        <textarea id="noteTextarea" class="note-modal-content"
+          placeholder="Ex: A appeler lundi matin, intéressé par l'offre Pro..."></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeNoteModal()">Annuler</button>
@@ -3214,7 +3343,8 @@
       </div>
       <div class="mfield">
         <label>Description</label>
-        <textarea id="fText" placeholder="Ex: Le bouton X ne fonctionne pas sur mobile..." style="height:120px"></textarea>
+        <textarea id="fText" placeholder="Ex: Le bouton X ne fonctionne pas sur mobile..."
+          style="height:120px"></textarea>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeFixModal()">Annuler</button>
@@ -3233,9 +3363,12 @@
         <button class="modal-close" onclick="closeModal()">×</button>
       </div>
       <div class="modal-grid">
-        <div class="mfield" style="grid-column: span 2; display: flex; align-items: center; gap: 8px; background: var(--surface2); padding: 10px 15px; border-radius: 12px; border: 0.5px solid var(--border); margin-bottom: 8px">
+        <div class="mfield"
+          style="grid-column: span 2; display: flex; align-items: center; gap: 8px; background: var(--surface2); padding: 10px 15px; border-radius: 12px; border: 0.5px solid var(--border); margin-bottom: 8px">
           <input type="checkbox" id="mIsPriority" style="width: 18px; height: 18px; cursor: pointer" />
-          <label for="mIsPriority" style="font-weight: 600; color: var(--text); cursor: pointer; margin-bottom: 0">Marquer comme prioritaire (Étoile)</label>
+          <label for="mIsPriority"
+            style="font-weight: 600; color: var(--text); cursor: pointer; margin-bottom: 0">Marquer comme prioritaire
+            (Étoile)</label>
         </div>
         <div class="mfield">
           <label>Prénom Nom</label>
@@ -3245,21 +3378,15 @@
           <label>Téléphone</label>
           <input type="tel" id="mTelephone" placeholder="06 12 34 56 78" />
         </div>
-         <div class="mfield">
+        <div class="mfield">
           <label>Entreprise</label>
           <input type="text" id="mEntreprise" placeholder="Acme Corp" />
         </div>
         <div class="mfield">
           <label>Type d'entreprise</label>
-          <input type="text" id="mTypeEntreprise" list="typeOptions" placeholder="PME, ETI, Groupe..." />
-          <datalist id="typeOptions">
-            <option value="PME"></option>
-            <option value="ETI"></option>
-            <option value="Groupe"></option>
-            <option value="Entreprise Individuelle"></option>
-            <option value="Indépendant"></option>
-            <option value="Auto-entrepreneur"></option>
-          </datalist>
+          <select id="mTypeEntreprise">
+            <!-- Dynamically populated -->
+          </select>
         </div>
         <div class="mfield">
           <label>Nb de magasins / locations</label>
@@ -3288,7 +3415,8 @@
             <option>Appel sortant</option>
           </select>
         </div>
-        <div class="mfield" style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--surface2); padding: 12px; border-radius: 12px; border: 0.5px solid var(--border)">
+        <div class="mfield"
+          style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--surface2); padding: 12px; border-radius: 12px; border: 0.5px solid var(--border)">
           <div>
             <label style="font-weight: 600; color: var(--text2)">Prix Fixe (€)</label>
             <input type="number" id="mValeurFixe" placeholder="1000" style="background: var(--surface)" />
@@ -3328,7 +3456,8 @@
         <textarea id="mNote" placeholder="Commentaire libre..."></textarea>
       </div>
       <div class="modal-actions">
-        <button class="btn-danger" id="btnDelProspect" style="margin-right:auto; display:none" onclick="deleteProspect(modalProspectId)">Supprimer</button>
+        <button class="btn-danger" id="btnDelProspect" style="margin-right:auto; display:none"
+          onclick="deleteProspect(modalProspectId)">Supprimer</button>
         <button class="btn-cancel" onclick="closeModal()">Annuler</button>
         <button class="btn-save" onclick="saveProspect()">Enregistrer</button>
       </div>
@@ -3352,7 +3481,8 @@
   <div class="modal-bg" id="callModalBg">
     <div class="modal" style="max-width:520px">
       <div class="card-header">
-        <div class="card-title" id="callModalTitle" style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div class="card-title" id="callModalTitle"
+          style="display:flex;align-items:center;justify-content:space-between;width:100%">
           <span>Journal d'appels</span>
           <div id="callTimerWrap"></div>
         </div>
@@ -3375,27 +3505,38 @@
           <div class="mfield"><label>Note</label><input type="text" id="callNote" placeholder="Résumé..." /></div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn-save" onclick="addCall()" style="flex:1;background:var(--teal)">Enregistrer l'appel</button>
-          <button class="btn-cancel" onclick="startCallTimer()" id="btnStartCall" style="flex:1">▶ Lancer l'appel</button>
+          <button class="btn-save" onclick="addCall()" style="flex:1;background:var(--teal)">Enregistrer
+            l'appel</button>
+          <button class="btn-cancel" onclick="startCallTimer()" id="btnStartCall" style="flex:1">▶ Lancer
+            l'appel</button>
         </div>
       </div>
-      
+
       <div class="quick-results">
         <div class="q-btn" onclick="quickCallResult('messagerie', 'Messagerie')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/></svg>
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+          </svg>
           Messagerie
         </div>
         <div class="q-btn" onclick="quickCallResult('injoignable', 'Injoignable')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" />
+          </svg>
           Absent
         </div>
         <div class="q-btn" onclick="quickCallResult('repondu', 'Intéressé')">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+            <path
+              d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+          </svg>
           Intéressé
         </div>
       </div>
 
-      <div id="callHistory" style="max-height:220px;overflow-y:auto;margin-top:16px;border-top:1px solid var(--border);padding-top:12px"></div>
+      <div id="callHistory"
+        style="max-height:220px;overflow-y:auto;margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
+      </div>
       <div class="modal-actions"><button class="btn-cancel" onclick="closeCallModal()">Fermer</button></div>
     </div>
   </div>
@@ -3408,7 +3549,8 @@
       <div class="welcome-title">Bienvenue sur Synaptics</div>
       <div class="welcome-text">Pour personnaliser votre interface, dites-nous comment vous souhaitez être appelé.</div>
       <div class="welcome-input-wrap">
-        <input type="text" id="welcomeNameInput" class="welcome-input" placeholder="Ex: Synaptics" onkeydown="if(event.key==='Enter')saveInitialName()"/>
+        <input type="text" id="welcomeNameInput" class="welcome-input" placeholder="Ex: Synaptics"
+          onkeydown="if(event.key==='Enter')saveInitialName()" />
       </div>
       <button class="btn-welcome" onclick="saveInitialName()">C'est parti !</button>
     </div>
@@ -3425,7 +3567,7 @@
   <script>  // ─── UTILS ───
     function debounce(fn, delay) {
       let timeout = null;
-      return function() {
+      return function () {
         const args = arguments;
         const context = this;
         clearTimeout(timeout);
@@ -3462,7 +3604,7 @@
         p.note = text;
         showToast('Note enregistrée !', 'success');
         saveData();
-        renderAll(); 
+        renderAll();
       }
       closeNoteModal();
     }
@@ -3487,7 +3629,7 @@
       const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
       const currentHour = new Date().getHours();
       const greeting = currentHour < 18 ? 'Bonjour' : 'Bonsoir';
-      
+
       const funnelStatuses = ['appeler', 'new', 'appele', 'contact', 'repondu', 'prop', 'rdv_planifie', 'rdv_effectue', 'nego', 'signe', 'gagne'];
       const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai');
       const totalActive = tousSaufPerdus.filter(p => !['signe', 'gagne'].includes(p.statut) && funnelStatuses.includes(p.statut)).length;
@@ -3540,8 +3682,8 @@
             </div>
             <div class="kanban-cards">
               ${colProspects.map(p => {
-                const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
-                return `
+          const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
+          return `
                   <div class="kanban-card" draggable="true" ondragstart="drag(event, '${p.id}')" onclick="openModal('${p.id}')">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start">
                       <div class="kanban-card-name" style="display:flex; align-items:center; gap:6px">
@@ -3560,7 +3702,7 @@
                     </div>
                   </div>
                 `;
-              }).join('')}
+        }).join('')}
             </div>
           </div>
         `;
@@ -3583,13 +3725,13 @@
       ev.preventDefault();
       const col = ev.target.closest('.kanban-col');
       if (col) col.classList.remove('drag-over');
-      
+
       const id = ev.dataTransfer.getData("prospectId");
       const p = prospects.find(x => x.id === id);
       if (p && p.statut !== newStatus) {
         changeStatus(id, newStatus);
       }
-      
+
       // Cleanup dragging class if any
       document.querySelectorAll('.kanban-card.dragging').forEach(c => c.classList.remove('dragging'));
     }
@@ -3674,6 +3816,7 @@
         localStorage.setItem('synaptic_prospects', JSON.stringify(prospects));
         localStorage.setItem('synaptic_fixes', JSON.stringify(fixes));
         localStorage.setItem('synaptic_team', JSON.stringify(teamMembers));
+        localStorage.setItem('synaptic_business_types', JSON.stringify(businessTypes));
       } catch (e) { }
 
       // Debounce Firestore writes
@@ -3682,6 +3825,9 @@
         // Save Team (still single doc as it's small)
         db.collection('config').doc('team').set({ data: teamMembers })
           .catch(function (e) { console.warn('Firebase team save error:', e); });
+
+        db.collection('config').doc('businessTypes').set({ data: businessTypes })
+          .catch(function (e) { console.warn('Firebase businessTypes save error:', e); });
 
         // Save Prospects (individual docs)
         // Note: For performance, ideally only changed docs should be saved.
@@ -3709,7 +3855,7 @@
 
     function initRealtimeSync() {
       // 1. Listen for Team Changes
-      teamListener = db.collection('config').doc('team').onSnapshot(function(doc) {
+      teamListener = db.collection('config').doc('team').onSnapshot(function (doc) {
         if (doc.exists && doc.data().data) {
           teamMembers = doc.data().data;
           renderSettingsTeam();
@@ -3718,7 +3864,7 @@
       });
 
       // 2. Listen for Prospects Changes
-      prospectsListener = db.collection('prospects').onSnapshot(function(snap) {
+      prospectsListener = db.collection('prospects').onSnapshot(function (snap) {
         const loaded = [];
         snap.forEach(doc => {
           const p = doc.data();
@@ -3730,7 +3876,7 @@
           }
           loaded.push(p);
         });
-        
+
         // Handle initial migration if collection is empty
         if (loaded.length === 0 && !dbReady) {
           handleMigrationOrDefaults();
@@ -3740,13 +3886,13 @@
         prospects = loaded;
         dbReady = true;
         onSyncComplete();
-      }, function(error) {
+      }, function (error) {
         console.warn('Realtime sync error (prospects), falling back to local:', error);
         fallbackToLocal();
       });
 
       // 3. Listen for Fixes Changes
-      fixesListener = db.collection('fixes').onSnapshot(function(snap) {
+      fixesListener = db.collection('fixes').onSnapshot(function (snap) {
         const loaded = [];
         snap.forEach(doc => loaded.push(doc.data()));
         fixes = loaded.sort((a, b) => b.createdAt - a.createdAt);
@@ -3772,6 +3918,19 @@
         dbReady = true;
         onSyncComplete();
       });
+
+      db.collection('config').doc('businessTypes').get().then(doc => {
+        if (doc.exists && doc.data().data) {
+          businessTypes = doc.data().data;
+        } else {
+          try {
+            const saved = localStorage.getItem('synaptic_business_types');
+            businessTypes = saved ? JSON.parse(saved) : ['PME', 'ETI', 'Groupe', 'Garage', 'Avocat', 'Indépendant'];
+          } catch (e) { businessTypes = ['PME', 'ETI', 'Groupe', 'Garage', 'Avocat', 'Indépendant']; }
+          // Initialize Firestore
+          db.collection('config').doc('businessTypes').set({ data: businessTypes });
+        }
+      });
     }
 
     function fallbackToLocal() {
@@ -3779,25 +3938,32 @@
         const saved = localStorage.getItem('synaptic_prospects');
         prospects = saved ? JSON.parse(saved) : getDefaultProspects();
       } catch (e) { prospects = getDefaultProspects(); }
+
+      try {
+        const saved = localStorage.getItem('synaptic_business_types');
+        businessTypes = saved ? JSON.parse(saved) : ['PME', 'ETI', 'Groupe', 'Garage', 'Avocat', 'Indépendant'];
+      } catch (e) { businessTypes = ['PME', 'ETI', 'Groupe', 'Garage', 'Avocat', 'Indépendant']; }
+
       dbReady = true;
       onSyncComplete();
     }
 
     function onSyncComplete() {
+      updateTypeSelects();
       renderAll();
-      
+
       // Handle UI animations and page restore once
       if (!window.initialLoadDone) {
         window.initialLoadDone = true;
-        
+
         const lastP = localStorage.getItem('synaptic_last_page');
         const lastT = localStorage.getItem('synaptic_last_page_time');
         const now = Date.now();
-        
+
         if (lastP && lastT && (now - parseInt(lastT) < 30 * 60 * 1000)) {
-           switchPage(lastP);
+          switchPage(lastP);
         } else {
-           switchPage('dashboard');
+          switchPage('dashboard');
         }
 
         // Set up auto-reset timer (30 mins inactivity)
@@ -3823,7 +3989,7 @@
 
     // Adapt existing switchPage
     const oldSwitchPage = switchPage;
-    switchPage = function(id, btn) {
+    switchPage = function (id, btn) {
       if (typeof oldSwitchPage === 'function') oldSwitchPage(id, btn);
       if (id === 'parametres') {
         const input = document.getElementById('settingUserName');
@@ -3902,7 +4068,7 @@
       const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
       const sc = p.score > 70 ? '#639922' : p.score > 40 ? '#BA7517' : '#E24B4A';
       const today = new Date().toISOString().split('T')[0];
-      
+
       const createdStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
       const relanceStr = p.dateRelance ? new Date(p.dateRelance).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
       const isRelanceUrg = p.dateRelance && p.dateRelance <= today && p.statut !== 'signe' && p.statut !== 'perdu';
@@ -3961,7 +4127,7 @@
         <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;margin-left:5px">${p.score || 0}%</span></div></td>
         <td style="font-size:12px;color:var(--text2)">${respSelectHtml(p)}</td>
         <td style="font-size:11px;color:var(--text3)">${createdStr}</td>
-        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg?'600':'400'}">${relanceIndicator}${relanceStr}</td>
+        <td class="${relanceClass}" style="font-size:11px;font-weight:${isRelanceUrg ? '600' : '400'}">${relanceIndicator}${relanceStr}</td>
         <td><div class="note-cell-icon" data-tt="${(p.note || 'Pas de note').replace(/"/g, '&quot;')}" onclick="openNoteModal('${p.id}')"><svg><use href="#icon-edit"/></svg></div></td>
         <td><button class="btn-action" onclick="openModal('${p.id}')">Détails</button></td>
       </tr>`;
@@ -3972,7 +4138,7 @@
       const exists = teamMembers.some(m => m.name === resp);
       const orphanOpt = (resp && !exists) ? `<option value="${resp}" selected>⚠️ ${resp} (ex-membre)</option>` : '';
       const defaultOpt = !resp ? '<option value="" selected disabled>Choisir...</option>' : '';
-      
+
       return `<select class="ghost-input" onchange="updateInline('${p.id}', 'resp', this.value)" style="font-weight:600;width:auto">
         ${defaultOpt}
         ${orphanOpt}
@@ -3989,10 +4155,10 @@
     function avatarFromName(name) {
       if (!name) return { initiales: '?', av: '#DDD:#666' };
       const words = name.split(' ');
-      const ini = words.map(w => w[0]).join('').substring(0,2).toUpperCase();
+      const ini = words.map(w => w[0]).join('').substring(0, 2).toUpperCase();
       const hash = name.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
       const colors = [
-        '#E6F1FB:#185FA5', '#EEEDFE:#534AB7', '#EAF3DE:#0F6E56', 
+        '#E6F1FB:#185FA5', '#EEEDFE:#534AB7', '#EAF3DE:#0F6E56',
         '#FAEEDA:#854F0B', '#FFF3CD:#856404', '#FCEBEB:#A32D2D'
       ];
       const av = colors[Math.abs(hash) % colors.length];
@@ -4004,8 +4170,8 @@
       const badge = badgeCss[s] || badgeCss.appeler;
       return `<div class="status-cell">
         <select class="badge-select" style="${badge}" onchange="changeStatus('${p.id}', this.value)">
-          ${Object.entries(statusMap).map(([k, v]) => 
-            `<option value="${k}" ${k === s ? 'selected' : ''}>${v}</option>`).join('')}
+          ${Object.entries(statusMap).map(([k, v]) =>
+        `<option value="${k}" ${k === s ? 'selected' : ''}>${v}</option>`).join('')}
         </select>
       </div>`;
     }
@@ -4019,7 +4185,7 @@
     function renderSparkline() {
       const el = document.getElementById('activitySparkline');
       if (!el) return;
-      
+
       // Calculate activity for last 7 days (New prospects + Calls)
       const data = [];
       const now = new Date();
@@ -4031,7 +4197,7 @@
         d.setDate(d.getDate() - i);
         // Compare with local YYYY-MM-DD
         const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        
+
         const newPros = prospects.filter(p => (p.date || '').split('T')[0] === ds).length;
         const newCalls = prospects.reduce((s, p) => s + (p.appels || []).filter(a => (a.date || '').split('T')[0] === ds).length, 0);
         data.push(newPros + newCalls);
@@ -4040,7 +4206,7 @@
       const W = el.clientWidth || 200, H = 140;
       const max = Math.max(...data, 1);
       const points = data.map((v, i) => `${(i * W) / (data.length - 1)},${H - (v / max) * H * 0.8 - 10}`).join(' ');
-      
+
       el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" preserveAspectRatio="none">
         <defs>
           <linearGradient id="sparkGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -4051,14 +4217,14 @@
         <path d="M 0 ${H} L ${points} L ${W} ${H} Z" fill="url(#sparkGradient)" />
         <polyline points="${points}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.4))" />
         ${data.map((v, i) => {
-          const x = (i * W) / (data.length - 1);
-          const y = H - (v / max) * H * 0.8 - 10;
-          const d = new Date(today);
-          d.setDate(d.getDate() - (6 - i));
-          const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-          return `<circle cx="${x}" cy="${y}" r="6" fill="var(--blue)" stroke="#1a1a1a" stroke-width="1.5" 
+        const x = (i * W) / (data.length - 1);
+        const y = H - (v / max) * H * 0.8 - 10;
+        const d = new Date(today);
+        d.setDate(d.getDate() - (6 - i));
+        const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        return `<circle cx="${x}" cy="${y}" r="6" fill="var(--blue)" stroke="#1a1a1a" stroke-width="1.5" 
             data-tt="${dateStr} : ${v} activité${v > 1 ? 's' : ''}" style="cursor:pointer" />`;
-        }).join('')}
+      }).join('')}
       </svg>`;
 
       // Render Day Labels
@@ -4073,15 +4239,15 @@
       }
     }
 
-    function renderAll() { 
-      computePipelineData(); 
+    function renderAll() {
+      computePipelineData();
       renderHero();
-      renderKPI(); 
-      renderPipeline(); 
-      renderConv(); 
-      renderTable(); 
+      renderKPI();
+      renderPipeline();
+      renderConv();
+      renderTable();
       renderProspectsTable();
-      renderTeamStats(); 
+      renderTeamStats();
       renderKanban();
       renderFixBoard();
       renderSparkline();
@@ -4093,7 +4259,7 @@
       const today = new Date().toISOString().split('T')[0];
       const tousSaufPerdus = prospects.filter(p => p.statut !== 'perdu' && p.statut !== 'npai' && funnelStatuses.includes(p.statut));
       const actifs = tousSaufPerdus.filter(p => !['signe', 'gagne'].includes(p.statut));
-      
+
       const valeurTotale = tousSaufPerdus.reduce((s, p) => s + getACV(p), 0);
       const valeurGagne = prospects.filter(p => (p.statut === 'signe' || p.statut === 'gagne')).reduce((s, p) => s + getACV(p), 0);
       const convGlobal = prospects.length > 0 ? Math.round(prospects.filter(p => p.statut === 'signe').length / prospects.length * 100) : 0;
@@ -4133,7 +4299,7 @@
       // If the target was NOT the checkbox, manually toggle it.
       // If it WAS the checkbox, browser already toggled it.
       if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
-      
+
       updateStatusLabel();
       renderTable();
     }
@@ -4143,7 +4309,7 @@
       const master = document.getElementById('checkAllStatus');
       // If click was on the row but not the checkbox, toggle master
       if (e.target.tagName !== 'INPUT') master.checked = !master.checked;
-      
+
       const cbs = document.querySelectorAll('.status-cb');
       cbs.forEach(cb => {
         // "Tous les statuts" selection logic: exclude 'exemple' from the "All" toggle
@@ -4157,7 +4323,7 @@
       const st = getSelectedStatuses();
       const label = document.getElementById('statusTriggerLabel');
       const master = document.getElementById('checkAllStatus');
-      
+
       const realStatusesCount = document.querySelectorAll('.status-cb:not([value="exemple"])').length;
       const selectedRealCount = Array.from(document.querySelectorAll('.status-cb:not([value="exemple"]):checked')).length;
 
@@ -4218,8 +4384,8 @@
         if (!window.pipeAnimated) {
           p.style.opacity = '0';
           p.style.animation = `pipeReveal 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${i * 0.25}s forwards`;
-          p.addEventListener('animationend', () => { 
-            p.style.opacity = p.dataset.baseOpacity; 
+          p.addEventListener('animationend', () => {
+            p.style.opacity = p.dataset.baseOpacity;
             p.style.animation = 'none'; // Clear animation after run
             if (i === currentData.length - 2) window.pipeAnimated = true;
           });
@@ -4275,7 +4441,7 @@
         const sIdx = { appeler: 0, new: 0, appele: 1, contact: 1, repondu: 2, prop: 2, rdv_planifie: 3, rdv_effectue: 3, nego: 3, signe: 4, gagne: 4 };
         return sIdx[p.statut] === i;
       }).reduce((s, p) => s + getACV(p), 0);
-      
+
       const tt = document.getElementById('ptt');
       tt.innerHTML = `<div class="tt-title">${stageNames[i]} → ${stageNames[i + 1]}</div>
     <div class="tt-row"><span>Entrée</span><span>${sv}</span></div>
@@ -4298,7 +4464,7 @@
       const el = document.getElementById('teamStatsBody');
       if (!el) return;
       const funnelStatuses = ['appeler', 'new', 'appele', 'contact', 'repondu', 'prop', 'rdv_planifie', 'rdv_effectue', 'nego', 'signe', 'gagne'];
-      
+
       el.innerHTML = teamMembers.map(m => {
         const mine = prospects.filter(p => p.resp === m.name);
         // Harmonized filter: funnel status, not perdu, not npai
@@ -4455,6 +4621,7 @@
     var modalProspectId = null;
     function openModal(id = null) {
       modalProspectId = id;
+      updateTypeSelects(); // Ensure dropdown is populated
       const title = document.getElementById('modalTitle');
       const btnDel = document.getElementById('btnDelProspect');
       if (id) {
@@ -4647,11 +4814,11 @@
 
     function deleteCall(idx) {
       const p = prospects.find(x => x.id === callProspectId);
-      if (p && p.appels) { 
-        p.appels.splice(idx, 1); 
-        renderCallHistory(); 
+      if (p && p.appels) {
+        p.appels.splice(idx, 1);
+        renderCallHistory();
         saveData();
-        renderAll(); 
+        renderAll();
       }
     }
 
@@ -4696,15 +4863,15 @@
       const barId = isPro ? 'proBulkBar' : 'bulkBar';
       const bar = document.getElementById(barId);
       if (!bar) return;
-      if (ids.length === 0) { 
-        bar.innerHTML = ''; 
+      if (ids.length === 0) {
+        bar.innerHTML = '';
         bar.classList.remove('active');
-        return; 
+        return;
       }
       bar.classList.add('active');
       const statusOptions = Object.keys(statusMap).map(k => `<option value="${k}">${statusMap[k]}</option>`).join('');
       const respOptions = teamMembers.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-      
+
       if (isPro) {
         bar.innerHTML = `<div class="bulk-bar" style="border-radius:24px;padding:10px 20px">
           <span style="font-size:13px;font-weight:700;margin-right:20px;color:var(--text1)">${ids.length} sélectionné${ids.length > 1 ? 's' : ''}</span>
@@ -4785,7 +4952,7 @@
         const now = Date.now();
         localStorage.setItem('synaptic_last_page', id);
         localStorage.setItem('synaptic_last_page_time', now);
-        
+
         // Reset the auto-switch timer whenever the page changes
         if (window.sessionTimeout) clearTimeout(window.sessionTimeout);
         window.sessionTimeout = setTimeout(() => {
@@ -4799,14 +4966,17 @@
       if (btn) btn.classList.add('active');
       document.getElementById('pageBadge').textContent = pageNames[id] || id;
       closeSidebar();
-      
+
       if (id === 'dashboard') {
         window.pipeAnimated = false;
         renderAll();
       }
       if (id === 'kanban') renderKanban();
       if (id === 'fixe') renderFixBoard();
-      if (id === 'parametres') renderSettingsTeam();
+      if (id === 'parametres') {
+        renderSettingsTeam();
+        renderSettingsBusinessTypes();
+      }
       if (id === 'prospects') {
         renderProPersonBtns();
         renderProspectsTable();
@@ -4874,7 +5044,7 @@
       currentFixId = id;
       const title = document.getElementById('fixModalBg').querySelector('.modal-title');
       const textInput = document.getElementById('fText');
-      
+
       if (id) {
         const f = fixes.find(x => x.id === id);
         if (f) {
@@ -4885,21 +5055,21 @@
         textInput.value = '';
         title.textContent = 'Nouveau Fix / Amélioration';
       }
-      
+
       toggleModal('fixModalBg', true);
       textInput.focus();
     }
-    
-    function closeFixModal() { 
-      toggleModal('fixModalBg', false); 
-      document.getElementById('fText').value = ''; 
+
+    function closeFixModal() {
+      toggleModal('fixModalBg', false);
+      document.getElementById('fText').value = '';
       currentFixId = null;
     }
 
     function saveFixItem() {
       const text = document.getElementById('fText').value.trim();
       if (!text) return;
-      
+
       if (currentFixId) {
         const f = fixes.find(x => x.id === currentFixId);
         if (f) f.text = text;
@@ -4914,7 +5084,7 @@
         fixes.unshift(newItem);
         showToast('Note ajoutée au journal');
       }
-      
+
       renderFixBoard();
       saveData();
       closeFixModal();
@@ -4941,7 +5111,7 @@
       ev.preventDefault();
       const col = ev.target.closest('.kanban-col');
       if (col) col.classList.remove('drag-over');
-      
+
       const id = ev.dataTransfer.getData("fixId");
       const f = fixes.find(x => x.id === id);
       if (f && f.status !== newStatus) {
@@ -4957,6 +5127,7 @@
       { name: 'Édouard', bg: '#C0DD97', fg: '#27500A' },
       { name: 'Maxence', bg: '#CECBF6', fg: '#3C3489' },
     ];
+    var businessTypes = ['PME', 'ETI', 'Groupe', 'Garage', 'Avocat', 'Indépendant'];
     const teamColors = [
       { bg: '#B5D4F4', fg: '#0C447C' }, { bg: '#C0DD97', fg: '#27500A' }, { bg: '#CECBF6', fg: '#3C3489' },
       { bg: '#FAC775', fg: '#633806' }, { bg: '#9FE1CB', fg: '#0F6E56' }, { bg: '#F7C1C1', fg: '#791F1F' },
@@ -5050,6 +5221,87 @@
       });
     }
 
+    function updateTypeSelects() {
+      const selectors = [document.getElementById('mTypeEntreprise')];
+      selectors.forEach(sel => {
+        if (!sel) return;
+        const current = sel.value;
+        sel.innerHTML = '<option value="">Choisir un type...</option>' + businessTypes.map(t => `<option value="${t}"${t === current ? ' selected' : ''}>${t}</option>`).join('');
+      });
+    }
+
+    function renderSettingsBusinessTypes() {
+      const el = document.getElementById('settingsBusinessTypes');
+      if (!el) return;
+      let html = businessTypes.map((t, i) => {
+        return `<div class="resp-item" style="justify-content:space-between" id="typeRow${i}">
+          <div style="display:flex;align-items:center;gap:10px;flex:1">
+            <div class="status-badge-preview" style="background:var(--blue-l);color:var(--blue-d);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">${t}</div>
+            <div class="resp-name" id="typeName${i}" style="display:none">${t}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:2px">
+            <button onclick="startEditBusinessType(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:4px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.color='var(--blue)';this.style.background='rgba(99,145,255,0.1)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Modifier">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button onclick="removeBusinessType(${i})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px 8px;border-radius:6px;transition:all 0.12s" onmouseover="this.style.color='#E24B4A';this.style.background='rgba(226,75,74,0.1)'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="Supprimer">&times;</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      html += `<div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+        <input type="text" id="newBusinessTypeName" placeholder="Nouveau type (ex: Garage)" style="flex:1;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:13px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addBusinessType()"/>
+        <button class="btn-save" onclick="addBusinessType()" style="font-size:13px;white-space:nowrap">+ Ajouter</button>
+      </div>`;
+
+      el.innerHTML = html;
+      updateTypeSelects();
+    }
+
+    function addBusinessType() {
+      const input = document.getElementById('newBusinessTypeName');
+      const name = input.value.trim();
+      if (!name) return;
+      businessTypes.push(name);
+      renderSettingsBusinessTypes();
+      saveData();
+      input.value = '';
+    }
+
+    function removeBusinessType(i) {
+      const name = businessTypes[i];
+      if (!confirm(`Supprimer le type "${name}" ?`)) return;
+      businessTypes.splice(i, 1);
+      renderSettingsBusinessTypes();
+      saveData();
+    }
+
+    function startEditBusinessType(i) {
+      const rowEl = document.querySelector(`#typeRow${i} div:first-child`);
+      if (!rowEl) return;
+      const currentName = businessTypes[i];
+      rowEl.innerHTML = `<div style="display:flex;align-items:center;gap:6px">
+        <input type="text" id="editTypeInput${i}" value="${currentName}" style="width:150px;padding:4px 8px;border:1px solid var(--blue);border-radius:6px;background:var(--surface2);color:var(--text);font-size:13px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')confirmEditBusinessType(${i});if(event.key==='Escape')renderSettingsBusinessTypes()"/>
+        <button onclick="confirmEditBusinessType(${i})" style="background:var(--blue);border:none;cursor:pointer;color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit">OK</button>
+        <button onclick="renderSettingsBusinessTypes()" style="background:none;border:0.5px solid var(--border2);cursor:pointer;color:var(--text3);font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit">✕</button>
+      </div>`;
+      const input = document.getElementById('editTypeInput' + i);
+      if (input) { input.focus(); input.select(); }
+    }
+
+    function confirmEditBusinessType(i) {
+      const input = document.getElementById('editTypeInput' + i);
+      if (!input) return;
+      const newName = input.value.trim();
+      if (!newName) return;
+      const oldName = businessTypes[i];
+      if (newName === oldName) { renderSettingsBusinessTypes(); return; }
+      prospects.forEach(p => { if (p.typeEntreprise === oldName) p.typeEntreprise = newName; });
+      businessTypes[i] = newName;
+      saveData();
+      renderSettingsBusinessTypes();
+      renderAll();
+    }
+
     // ─── IMPORT / EXPORT ───
     function exportCSV() {
       const headers = ['id', 'nom', 'email', 'telephone', 'entreprise', 'typeEntreprise', 'statut', 'source', 'valeurFixe', 'valeurMensuelle', 'score', 'resp', 'date', 'dateRelance', 'note'];
@@ -5097,8 +5349,8 @@
       const status = document.getElementById('importStatus');
       status.textContent = "Traitement de " + file.name + "...";
       const reader = new FileReader();
-      
-      reader.onload = function(e) {
+
+      reader.onload = function (e) {
         try {
           const content = e.target.result;
           if (file.name.endsWith('.json')) {
@@ -5113,15 +5365,15 @@
             // CSV Parsing
             const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             if (lines.length < 2) throw "Fichier trop court";
-            
+
             const sep = lines[0].includes(';') ? ';' : ',';
             const headers = lines[0].split(sep).map(h => h.trim().replace(/"/g, ''));
             const newOnes = [];
-            
+
             for (let i = 1; i < lines.length; i++) {
               const cols = lines[i].split(sep).map(c => c.trim().replace(/"/g, ''));
               const p = { id: Date.now().toString() + i, appels: [] };
-              
+
               headers.forEach((h, idx) => {
                 let val = cols[idx] || '';
                 // Map old 'valeur' to 'valeurFixe' if present
@@ -5133,14 +5385,14 @@
                   p[h] = val;
                 }
               });
-              
+
               // Ensure defaults
               if (!p.nom && !p.entreprise) return; // skip empty
               p.valeurFixe = p.valeurFixe || 0;
               p.valeurMensuelle = p.valeurMensuelle || 0;
               newOnes.push(p);
             }
-            
+
             if (newOnes.length > 0) {
               if (confirm(`Importer ${newOnes.length} prospects ? Cela remplacera votre liste actuelle.`)) {
                 prospects = newOnes;
@@ -5226,18 +5478,18 @@
     function sortProTable(col) {
       if (proSortCol === col) proSortDir = proSortDir === 'asc' ? 'desc' : 'asc';
       else { proSortCol = col; proSortDir = 'asc'; }
-      
+
       // Update sort icons for proTable
-      document.querySelectorAll('#page-prospects .sort-icon').forEach(el => { 
-        el.textContent = ''; 
-        el.parentElement.classList.remove('sort-active'); 
+      document.querySelectorAll('#page-prospects .sort-icon').forEach(el => {
+        el.textContent = '';
+        el.parentElement.classList.remove('sort-active');
       });
       const icon = document.getElementById('pro-sort-' + col);
-      if (icon) { 
-        icon.textContent = proSortDir === 'asc' ? '▲' : '▼'; 
-        icon.parentElement.classList.add('sort-active'); 
+      if (icon) {
+        icon.textContent = proSortDir === 'asc' ? '▲' : '▼';
+        icon.parentElement.classList.add('sort-active');
       }
-      
+
       renderProspectsTable();
     }
 
@@ -5267,14 +5519,14 @@
         if (st.length > 0 && !st.includes(p.statut)) return false;
         if (proFilterResp && p.resp !== proFilterResp) return false;
         if (qLow && !p.nom.toLowerCase().includes(qLow) && !p.entreprise.toLowerCase().includes(qLow)) return false;
-        
+
         if (proFilterType === 'prioritaires') {
           const isHot = ['rdv_planifie', 'rdv_effectue', 'signe'].includes(p.statut);
           if (!p.isPriority && !isHot && (p.score || 0) < 80) return false;
         } else if (proFilterType === 'aujourdhui') {
           if (!p.dateRelance || p.dateRelance !== today) return false;
         }
-        
+
         return true;
       });
 
@@ -5320,7 +5572,7 @@
         const padding = 15;
         let left = e.clientX + padding;
         let top = e.clientY - 10;
-        
+
         const w = tt.offsetWidth;
         const h = tt.offsetHeight;
 
@@ -5328,15 +5580,15 @@
         if (left + w > window.innerWidth) {
           left = e.clientX - w - padding;
         }
-        
+
         // Sécurité bord gauche
         if (left < 5) left = 5;
-        
+
         // Sécurité bord bas
         if (top + h > window.innerHeight) {
           top = e.clientY - h - padding;
         }
-        
+
         // Sécurité bord haut
         if (top < 5) top = 5;
 
@@ -5362,13 +5614,42 @@
 
   </script>
   <svg style="display: none;">
-    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></symbol>
-    <symbol id="icon-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></symbol>
-    <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
-    <symbol id="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></symbol>
-    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
-    <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 00-3-3.87" />
+      <path d="M16 3.13a4 4 0 010 7.75" />
+    </symbol>
+    <symbol id="icon-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+    </symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </symbol>
+    <symbol id="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9" />
+    </symbol>
   </svg>
 </body>
+
 </html>
