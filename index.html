@@ -4417,6 +4417,17 @@
     function closeModal() { toggleModal('modalBg', false); }
     document.getElementById('modalBg').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
+    // Add Enter key listener for all inputs in the prospect modal
+    document.querySelectorAll('#modalBg input, #modalBg select').forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          // If it's the textarea, we might want to allow new lines with Shift+Enter
+          if (e.target.id === 'mNote' && e.shiftKey) return;
+          saveProspect();
+        }
+      });
+    });
+
     function openNoteModal(id) {
       currentNoteProspectId = id;
       const p = prospects.find(x => x.id === id);
@@ -4457,8 +4468,8 @@
     }
 
     function saveProspect() {
-      const nom = document.getElementById('mNom').value.trim();
-      if (!nom) { alert('Le nom est obligatoire.'); return; }
+      let nom = document.getElementById('mNom').value.trim();
+      if (!nom) nom = "Nouveau Prospect";
       const { initiales, av } = avatarFromName(nom);
       const data = {
         nom, initiales, av,
