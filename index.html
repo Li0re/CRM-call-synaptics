@@ -3233,6 +3233,10 @@
         <button class="modal-close" onclick="closeModal()">×</button>
       </div>
       <div class="modal-grid">
+        <div class="mfield" style="grid-column: span 2; display: flex; align-items: center; gap: 8px; background: var(--surface2); padding: 10px 15px; border-radius: 12px; border: 0.5px solid var(--border); margin-bottom: 8px">
+          <input type="checkbox" id="mIsPriority" style="width: 18px; height: 18px; cursor: pointer" />
+          <label for="mIsPriority" style="font-weight: 600; color: var(--text); cursor: pointer; margin-bottom: 0">Marquer comme prioritaire (Étoile)</label>
+        </div>
         <div class="mfield">
           <label>Prénom Nom</label>
           <input type="text" id="mNom" placeholder="Marie Durand" />
@@ -3539,13 +3543,20 @@
                 const [bg, fg] = (p.av || '#E6F1FB:#185FA5').split(':');
                 return `
                   <div class="kanban-card" draggable="true" ondragstart="drag(event, '${p.id}')" onclick="openModal('${p.id}')">
-                    <div class="kanban-card-name">${p.nom}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                      <div class="kanban-card-name" style="display:flex; align-items:center; gap:6px">
+                        <span onclick="togglePriority('${p.id}', event)" style="cursor:pointer; font-size:16px; color:${p.isPriority ? 'var(--orange)' : 'var(--text3)'}; transition:all 0.15s" title="Priorité">
+                          ${p.isPriority ? '★' : '☆'}
+                        </span>
+                        ${p.nom}
+                      </div>
+                      <div class="av-sm" style="background:${bg};color:${fg};width:20px;height:20px;font-size:9px">${p.initiales || '+'}</div>
+                    </div>
                     <div class="kanban-card-company">${p.entreprise || '—'}</div>
                     <div class="kanban-card-footer">
                       <span class="kanban-card-val" title="Total Annuel: ${getACV(p).toLocaleString('fr-FR')}€">
                         ${(Number(p.valeurFixe) || 0).toLocaleString('fr-FR')}€${p.valeurMensuelle > 0 ? ` + ${p.valeurMensuelle}€/m` : ''}
                       </span>
-                      <div class="av-sm" style="background:${bg};color:${fg};width:20px;height:20px;font-size:9px">${p.initiales || '+'}</div>
                     </div>
                   </div>
                 `;
@@ -3901,7 +3912,15 @@
       if (view === 'dashboard') {
         const notePreview = p.note ? (p.note.length > 25 ? p.note.substring(0, 25) + '...' : p.note) : '—';
         return `<tr data-rid="${p.id}">
-          <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
+          <td>
+            <div class="prospect-name">
+              <span onclick="togglePriority('${p.id}', event)" style="cursor:pointer; font-size:16px; color:${p.isPriority ? 'var(--orange)' : 'var(--text3)'}; margin-right:4px">
+                ${p.isPriority ? '★' : '☆'}
+              </span>
+              <div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div>
+              <span style="font-weight:600">${p.nom || ''}</span>
+            </div>
+          </td>
           <td><span class="badge-select" style="${badgeCss[p.statut] || ''};pointer-events:none;cursor:default;font-size:10px">${statusMap[p.statut] || p.statut}</span></td>
           <td><div class="score-wrap"><div class="score-track"><div class="score-fill" style="width:${p.score || 0}%;background:${sc}"></div></div><span style="font-size:11px;color:var(--text2);margin-left:8px">${p.score || 0}%</span></div></td>
           <td>${respSelectHtml(p)}</td>
@@ -3916,7 +3935,15 @@
 
       return `<tr data-rid="${p.id}" class="${p.statut === 'perdu' ? 'row-done' : ''} ${p.statut === 'npai' ? 'row-npai' : ''}">
         <td><input type="checkbox" class="pro-row-cb" value="${p.id}" ${isChecked} onclick="updateProBulkBar()"/></td>
-        <td><div class="prospect-name"><div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div><span style="font-weight:600">${p.nom || ''}</span></div></td>
+        <td>
+          <div class="prospect-name">
+            <span onclick="togglePriority('${p.id}', event)" style="cursor:pointer; font-size:16px; color:${p.isPriority ? 'var(--orange)' : 'var(--text3)'}; margin-right:8px; line-height:1">
+              ${p.isPriority ? '★' : '☆'}
+            </span>
+            <div class="av-sm" style="background:${bg};color:${fg}">${p.initiales || '+'}</div>
+            <span style="font-weight:600">${p.nom || ''}</span>
+          </div>
+        </td>
         <td style="font-size:12px;color:var(--text2)">${p.telephone || '—'}</td>
         <td style="font-size:12px;color:var(--text2)">${p.email || '—'}</td>
         <td style="font-size:12px;color:var(--text2)">${p.entreprise || '—'}</td>
@@ -4379,6 +4406,17 @@
       return v;
     }
 
+    function togglePriority(id, ev) {
+      if (ev) ev.stopPropagation();
+      const p = prospects.find(x => x.id === id);
+      if (p) {
+        p.isPriority = !p.isPriority;
+        saveData();
+        renderAll();
+        showToast(p.isPriority ? 'Favoris : Prospect prioritaire' : 'Priorité retirée', 'success');
+      }
+    }
+
     function updateInline(id, field, value) {
       const p = prospects.find(x => x.id === id);
       if (!p) return;
@@ -4425,6 +4463,7 @@
         const p = prospects.find(x => x.id === id);
         if (p) {
           document.getElementById('mNom').value = p.nom || '';
+          document.getElementById('mIsPriority').checked = p.isPriority || false;
           document.getElementById('mTelephone').value = p.telephone || '';
           document.getElementById('mEmail').value = p.email || '';
           document.getElementById('mEntreprise').value = p.entreprise || '';
@@ -4444,6 +4483,7 @@
         title.textContent = 'Nouveau prospect';
         if (btnDel) btnDel.style.display = 'none';
         document.getElementById('mNom').value = '';
+        document.getElementById('mIsPriority').checked = false;
         document.getElementById('mTelephone').value = '';
         document.getElementById('mEmail').value = '';
         document.getElementById('mEntreprise').value = '';
@@ -4501,7 +4541,7 @@
       const newId = Date.now().toString();
       const today = new Date().toISOString().split('T')[0];
       const newP = {
-        id: newId, nom: '', initiales: '+', av: '#E6F1FB:#185FA5',
+        id: newId, nom: '', isPriority: false, initiales: '+', av: '#E6F1FB:#185FA5',
         telephone: '', email: '', entreprise: '', typeEntreprise: '', nbLocations: '', statut: 'appeler', source: 'Saisie Rapide',
         valeurFixe: 0, valeurMensuelle: 0, score: 0, resp: proFilterResp || teamMembers[0]?.name || 'Grégory', date: today, dateRelance: today, note: '', appels: []
       };
@@ -4519,7 +4559,7 @@
       if (!nom) nom = "Nouveau Prospect";
       const { initiales, av } = avatarFromName(nom);
       const data = {
-        nom, initiales, av,
+        nom, isPriority: document.getElementById('mIsPriority').checked, initiales, av,
         telephone: document.getElementById('mTelephone').value.trim(),
         email: document.getElementById('mEmail').value.trim(),
         entreprise: document.getElementById('mEntreprise').value.trim(),
@@ -5230,7 +5270,7 @@
         
         if (proFilterType === 'prioritaires') {
           const isHot = ['rdv_planifie', 'rdv_effectue', 'signe'].includes(p.statut);
-          if (!isHot && (p.score || 0) < 80) return false;
+          if (!p.isPriority && !isHot && (p.score || 0) < 80) return false;
         } else if (proFilterType === 'aujourdhui') {
           if (!p.dateRelance || p.dateRelance !== today) return false;
         }
